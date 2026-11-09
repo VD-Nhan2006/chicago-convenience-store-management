@@ -11,7 +11,7 @@ public class ConnectDB {
 
     private static final String SERVER = "localhost";
     private static final int PORT = 1433;
-    private static final String DATABASE = "ChicagoConvenienceStore";
+    private static final String DATABASE = "DBChicago";
     private static final String USER = "sa";
     private static final String PASSWORD = "sapassword";
 
