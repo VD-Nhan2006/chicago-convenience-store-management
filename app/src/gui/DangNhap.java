@@ -14,6 +14,10 @@ import javax.swing.UIManager;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
+
+import entity.VaiTro;
+import session.UserSession;
+
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
@@ -39,7 +43,7 @@ public class DangNhap extends JFrame implements ActionListener{
 		getContentPane().add(pnlLogo);
 		pnlLogo.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("New label");
+		JLabel lblNewLabel = new JLabel();
 		ImageIcon icon = new ImageIcon(DangNhap.class.getResource("/image/LogoNenXanh.png"));
 		Image img = icon.getImage().getScaledInstance(420, 368, Image.SCALE_SMOOTH);
 		lblNewLabel.setIcon(new ImageIcon(img));
@@ -115,11 +119,23 @@ public class DangNhap extends JFrame implements ActionListener{
 		passwordField.setBounds(10, 221, 420, 32);
 		panel.add(passwordField);
 		
+		// Xử lý ẩn / hiện mật khẩu
+		chckHienMK.addActionListener(e -> {
+			if (chckHienMK.isSelected()) {
+				passwordField.setEchoChar((char) 0);
+			} else {
+				passwordField.setEchoChar('•');
+			}
+		});
+
 		btnDangNhap.addActionListener(this);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(e.getSource() == btnDangNhap) {
+			UserSession.dangNhap("Dinh Nhan", VaiTro.QUAN_LY);
+			dispose();
+			new FrmChinh().setVisible(true);
+		}
 	}
 }
