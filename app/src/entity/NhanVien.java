@@ -7,19 +7,27 @@ public class NhanVien {
 	private String ho;
 	private String ten;
 	private String soDienThoai;
+	private String diaChi;
 	private String trangThai;
 	public NhanVien() {
 	}
 	public NhanVien(String maNhanVien) {
 		this.maNhanVien = maNhanVien;
 	}
-	public NhanVien(String maNhanVien, String ho, String ten, String soDienThoai, String trangThai) {
+	public NhanVien(String maNhanVien, String ho, String ten, String soDienThoai, String diaChi, String trangThai) {
 		super();
 		this.maNhanVien = maNhanVien;
 		this.ho = ho;
 		this.ten = ten;
 		this.soDienThoai = soDienThoai;
+		this.diaChi = diaChi;
 		this.trangThai = trangThai;
+	}
+	public String getDiaChi() {
+		return diaChi;
+	}
+	public void setDiaChi(String diaChi) {
+		this.diaChi = diaChi;
 	}
 	public String getMaNhanVien() {
 		return maNhanVien;

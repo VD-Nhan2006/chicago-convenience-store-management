@@ -3,13 +3,13 @@ package entity;
 public class TaiKhoan {
 	private NhanVien nhanVien;
 	private String matKhau;
-	private String vaiTro;
+	private VaiTro vaiTro;
 	public TaiKhoan() {
 	}
 	public TaiKhoan(NhanVien nhanVien) {
 		this.nhanVien = nhanVien;
 	}
-	public TaiKhoan(NhanVien nhanVien, String matKhau, String vaiTro) {
+	public TaiKhoan(NhanVien nhanVien, String matKhau, VaiTro vaiTro) {
 		this.nhanVien = nhanVien;
 		this.matKhau = matKhau;
 		this.vaiTro = vaiTro;
@@ -26,10 +26,11 @@ public class TaiKhoan {
 	public void setMatKhau(String matKhau) {
 		this.matKhau = matKhau;
 	}
-	public String getVaiTro() {
+	
+	public VaiTro getVaiTro() {
 		return vaiTro;
 	}
-	public void setVaiTro(String vaiTro) {
+	public void setVaiTro(VaiTro vaiTro) {
 		this.vaiTro = vaiTro;
 	}
 	@Override
