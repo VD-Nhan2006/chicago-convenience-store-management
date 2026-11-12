@@ -80,10 +80,8 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtTienKhachDua;
     private JTextField txtTienThoi;
     private JButton btnThanhToan;
-    private JButton btnChonHoaDon;
+    private JList<String> lstHoaDon;
     private JButton btnXemHoaDon;
-    private String maHoaDonGanNhat;
-    private HoaDon hoaDonDaChon;
     private final HoaDonService hoaDonService = new HoaDonService(new HoaDonDAO());
     private ArrayList<ChuongTrinhKhuyenMai> danhSachKhuyenMai = new ArrayList<ChuongTrinhKhuyenMai>();
 
@@ -352,11 +350,21 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThanhToan.setMaximumSize(new Dimension(274, 34));
         pnlThongTinThanhToan.add(btnThanhToan);
         pnlThongTinThanhToan.add(Box.createVerticalStrut(8));
-        btnChonHoaDon = new JButton("Chọn hóa đơn");
-        dinhDangNut(btnChonHoaDon, MAU_XANH, false);
-        btnChonHoaDon.setAlignmentX(LEFT_ALIGNMENT);
-        btnChonHoaDon.setMaximumSize(new Dimension(274, 34));
-        pnlThongTinThanhToan.add(btnChonHoaDon);
+        JPanel pnlHoaDonDaLuu = new JPanel(new BorderLayout(0, 4));
+        pnlHoaDonDaLuu.setOpaque(false);
+        pnlHoaDonDaLuu.setAlignmentX(LEFT_ALIGNMENT);
+        JLabel lblHoaDonDaLuu = new JLabel("Hóa đơn đã thanh toán");
+        lblHoaDonDaLuu.setForeground(MAU_XANH);
+        lstHoaDon = new JList<String>();
+        lstHoaDon.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        lstHoaDon.setVisibleRowCount(3);
+        lblHoaDonDaLuu.setLabelFor(lstHoaDon);
+        JScrollPane scrHoaDonDaLuu = new JScrollPane(lstHoaDon);
+        scrHoaDonDaLuu.setPreferredSize(new Dimension(254, 65));
+        pnlHoaDonDaLuu.add(lblHoaDonDaLuu, BorderLayout.NORTH);
+        pnlHoaDonDaLuu.add(scrHoaDonDaLuu, BorderLayout.CENTER);
+        pnlHoaDonDaLuu.setMaximumSize(new Dimension(Integer.MAX_VALUE, pnlHoaDonDaLuu.getPreferredSize().height));
+        pnlThongTinThanhToan.add(pnlHoaDonDaLuu);
         pnlThongTinThanhToan.add(Box.createVerticalStrut(8));
         btnXemHoaDon = new JButton("Xem / xuất hóa đơn");
         dinhDangNut(btnXemHoaDon, MAU_XANH, false);
@@ -380,7 +388,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         txtTienKhachDua.addActionListener(this);
         txtTienKhachDua.addKeyListener(this);
         btnThanhToan.addActionListener(this);
-        btnChonHoaDon.addActionListener(this);
+        lstHoaDon.addListSelectionListener(this);
         btnXemHoaDon.addActionListener(this);
         tblDongHang.getSelectionModel().addListSelectionListener(this);
     }
@@ -460,10 +468,8 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 capNhatTienThanhToan();
             } else if (nguon == btnThanhToan) {
                 thanhToanHoaDon();
-            } else if (nguon == btnChonHoaDon) {
-                chonHoaDon();
-            } else if (nguon == btnXemHoaDon && hoaDonDaChon != null) {
-                new HoaDonDialog(JOptionPane.getFrameForComponent(this), hoaDonDaChon).setVisible(true);
+            } else if (nguon == btnXemHoaDon && lstHoaDon.getSelectedValue() != null) {
+                xemHoaDon(lstHoaDon.getSelectedValue());
             }
         } catch (SQLException ex) {
             String thongBao = nguon == btnThanhToan
@@ -564,6 +570,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             JOptionPane.showMessageDialog(this, "Không tải được danh sách tra cứu. Kiểm tra kết nối cơ sở dữ liệu.",
                     "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
         }
+        napDanhSachHoaDon();
     }
 
     private void napGoiY(JTextField oNhap, JList<String> danhSach, JPopupMenu popup, String[] nhan) {
@@ -595,6 +602,10 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     @Override
     public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
+            return;
+        }
+        if (event.getSource() == lstHoaDon) {
+            btnXemHoaDon.setEnabled(!lstHoaDon.isSelectionEmpty());
             return;
         }
         if (event.getSource() == lstGoiYKhachHang) {
@@ -703,37 +714,33 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void sauThanhToan(String ma) {
-        maHoaDonGanNhat = ma;
-        capNhatHoaDonDaChon(null);
-        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ". Bấm Chọn hóa đơn để xem hoặc xuất tệp.",
+        napDanhSachHoaDon();
+        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ". Bấm vào mã trong danh sách để xem hoặc xuất tệp.",
                 "Thanh toán thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void chonHoaDon() {
-        String maMacDinh = hoaDonDaChon == null ? maHoaDonGanNhat : hoaDonDaChon.getMaHoaDon();
-        String ma = JOptionPane.showInputDialog(this, "Nhập mã hóa đơn đã thanh toán", maMacDinh);
-        if (ma == null) {
-            return;
-        }
-        capNhatHoaDonDaChon(null);
-        ma = ma.trim();
-        if (ma.isEmpty()) {
-            return;
-        }
+    private void napDanhSachHoaDon() {
+        lstHoaDon.clearSelection();
         try {
-            capNhatHoaDonDaChon(hoaDonService.layHoaDonDaThanhToan(ma));
+            ArrayList<String> maHoaDon = hoaDonService.layMaHoaDonDaThanhToan();
+            lstHoaDon.setListData(maHoaDon.toArray(new String[0]));
+        } catch (SQLException ex) {
+            lstHoaDon.setListData(new String[0]);
+            JOptionPane.showMessageDialog(this, "Không tải được danh sách hóa đơn.",
+                    "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void xemHoaDon(String ma) {
+        try {
+            HoaDon hoaDon = hoaDonService.layHoaDonDaThanhToan(ma);
+            new HoaDonDialog(JOptionPane.getFrameForComponent(this), hoaDon).setVisible(true);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Không đọc được hóa đơn " + ma + ".",
                     "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Hóa đơn", JOptionPane.WARNING_MESSAGE);
         }
-    }
-
-    private void capNhatHoaDonDaChon(HoaDon hoaDon) {
-        hoaDonDaChon = hoaDon;
-        btnXemHoaDon.setEnabled(hoaDon != null);
-        btnChonHoaDon.setText(hoaDon == null ? "Chọn hóa đơn" : "Đổi hóa đơn: " + hoaDon.getMaHoaDon());
     }
 
     private void hienThiSanPham(SanPham sp) {
