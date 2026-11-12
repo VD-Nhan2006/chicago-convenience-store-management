@@ -331,6 +331,7 @@ public class FrmChinh extends JFrame implements ActionListener{
     
     private void taoCardManHinh() {
     	pnlNoiDung.add(new QuanLyNhanVien(), "NHAN_VIEN");
+        pnlNoiDung.add(new BanHang(), "BAN_HANG");
     }
 
 	@Override
