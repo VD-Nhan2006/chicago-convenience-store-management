@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 import dao.HoaDonDAO;
 import entity.ChiTietHoaDon;
@@ -19,10 +18,6 @@ public class HoaDonService {
 
     public HoaDonService(HoaDonDAO dao) {
         this.dao = dao;
-    }
-
-    public ArrayList<String> layMaHoaDonDaThanhToan() throws SQLException {
-        return dao.layMaHoaDonDaThanhToan();
     }
 
     public HoaDon layHoaDonDaThanhToan(String ma) throws SQLException {

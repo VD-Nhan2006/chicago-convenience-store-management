@@ -15,28 +15,6 @@ import entity.NhanVien;
 import entity.SanPham;
 
 public class HoaDonDAO {
-    public ArrayList<String> layMaHoaDonDaThanhToan() throws SQLException {
-        String sql = "SELECT hd.maHoaDon FROM dbo.HoaDon hd WHERE hd.trangThaiThanhToan = ? "
-                + "AND EXISTS (SELECT 1 FROM dbo.ChiTietHoaDon ct WHERE ct.maHoaDon = hd.maHoaDon) "
-                + "ORDER BY hd.thoiGianThanhToan DESC, hd.maHoaDon DESC";
-        PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
-        try {
-            stmt.setNString(1, "Đã thanh toán");
-            ResultSet rs = stmt.executeQuery();
-            try {
-                ArrayList<String> maHoaDon = new ArrayList<String>();
-                while (rs.next()) {
-                    maHoaDon.add(rs.getString("maHoaDon"));
-                }
-                return maHoaDon;
-            } finally {
-                rs.close();
-            }
-        } finally {
-            stmt.close();
-        }
-    }
-
     public HoaDon timHoaDon(String ma) throws SQLException {
         Connection con = ConnectDB.getConnection();
         String sql = "SELECT hd.*, nv.ho AS hoNV, nv.ten AS tenNV, kh.ho AS hoKH, kh.ten AS tenKH, "
