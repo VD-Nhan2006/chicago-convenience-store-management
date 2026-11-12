@@ -206,8 +206,13 @@ public class BanHangService {
     }
 
     private void kiemTraTon(SanPham sanPham, long soLuong) {
-        if (soLuong > sanPham.getSoLuongTon()) {
-            throw new IllegalArgumentException("Số lượng vượt tồn kho (" + sanPham.getSoLuongTon() + ").");
+        int tonKho = sanPham.getSoLuongTon();
+        if (tonKho == 0) {
+            throw new IllegalArgumentException("Sản phẩm " + sanPham.getTenSanPham() + " đã hết hàng.");
+        }
+        if (soLuong > tonKho) {
+            throw new IllegalArgumentException("Sản phẩm " + sanPham.getTenSanPham() + " chỉ còn "
+                    + tonKho + " " + sanPham.getDonViTinh() + " trong kho. Tổng số lượng yêu cầu: " + soLuong + ".");
         }
     }
 }
