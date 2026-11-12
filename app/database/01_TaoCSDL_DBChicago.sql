@@ -130,6 +130,7 @@ CREATE TABLE dbo.NhanVien (
     ho           NVARCHAR(50)  NOT NULL,
     ten          NVARCHAR(50)  NOT NULL,
     soDienThoai  VARCHAR(10)   NOT NULL,
+    diaChi       NVARCHAR(255) NOT NULL,
     trangThai    NVARCHAR(30)  NOT NULL,
     CONSTRAINT PK_NhanVien PRIMARY KEY (maNhanVien),
     CONSTRAINT CK_NhanVien_MaNhanVien CHECK (
@@ -144,6 +145,7 @@ CREATE TABLE dbo.NhanVien (
     CONSTRAINT CK_NhanVien_SoDienThoai CHECK (
         soDienThoai LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
     ),
+    CONSTRAINT CK_NhanVien_DiaChi CHECK (LEN(LTRIM(RTRIM(diaChi))) > 0),
     CONSTRAINT CK_NhanVien_TrangThai CHECK (
         trangThai IN (N'Đang hoạt động', N'Ngừng hoạt động')
     )
