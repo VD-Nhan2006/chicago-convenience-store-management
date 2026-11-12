@@ -8,7 +8,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,7 +31,9 @@ import javax.swing.table.DefaultTableModel;
 
 import dao.BanHangDAO;
 import entity.ChiTietHoaDon;
+import entity.ChuongTrinhKhuyenMai;
 import entity.KhachHang;
+import entity.NhanVien;
 import entity.SanPham;
 import service.BanHangService;
 
@@ -56,6 +60,14 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JButton btnThemDong;
     private JButton btnSua;
     private JButton btnXoa;
+    private JComboBox<String> cboKhuyenMai;
+    private JComboBox<String> cboPhuongThuc;
+    private JTextField txtTienGiam;
+    private JTextField txtTongThanhToan;
+    private JTextField txtTienKhachDua;
+    private JTextField txtTienThoi;
+    private JButton btnThanhToan;
+    private ArrayList<ChuongTrinhKhuyenMai> danhSachKhuyenMai = new ArrayList<ChuongTrinhKhuyenMai>();
 
     public BanHang() {
         this(new BanHangService(new BanHangDAO()));
@@ -227,7 +239,9 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         JPanel pnlThongTinThanhToan = new JPanel();
         pnlThongTinThanhToan.setOpaque(false);
         pnlThongTinThanhToan.setLayout(new BoxLayout(pnlThongTinThanhToan, BoxLayout.Y_AXIS));
-        pnlThanhToan.add(pnlThongTinThanhToan, BorderLayout.NORTH);
+        JScrollPane scrThanhToan = new JScrollPane(pnlThongTinThanhToan);
+        scrThanhToan.setBorder(BorderFactory.createEmptyBorder());
+        pnlThanhToan.add(scrThanhToan, BorderLayout.CENTER);
 
         JLabel lblThanhToan = new JLabel("Thanh toán");
         lblThanhToan.setFont(new Font("Arial", Font.BOLD, 16));
@@ -237,21 +251,19 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
 
         txtTongTienHang = new JTextField("0");
         dinhDangOChu(txtTongTienHang, false);
-        JComboBox<String> cboKhuyenMai = new JComboBox<String>(new String[]{"Không áp dụng"});
-        JTextField txtTienGiam = new JTextField("0");
+        cboKhuyenMai = new JComboBox<String>(new String[]{"Không áp dụng"});
+        txtTienGiam = new JTextField("0");
         dinhDangOChu(txtTienGiam, false);
-        JTextField txtTongThanhToan = new JTextField("0");
+        txtTongThanhToan = new JTextField("0");
         dinhDangOChu(txtTongThanhToan, false);
-        JComboBox<String> cboPhuongThuc = new JComboBox<String>(new String[]{"Tiền mặt", "Chuyển khoản"});
-        JTextField txtTienKhachDua = new JTextField("");
-        dinhDangOChu(txtTienKhachDua, false);
-        JTextField txtTienThoi = new JTextField("0");
+        cboPhuongThuc = new JComboBox<String>(new String[]{"Tiền mặt", "Chuyển khoản"});
+        txtTienKhachDua = new JTextField("");
+        dinhDangOChu(txtTienKhachDua, true);
+        txtTienThoi = new JTextField("0");
         dinhDangOChu(txtTienThoi, false);
-        JButton btnThanhToan = new JButton("Thanh toán");
+        btnThanhToan = new JButton("Thanh toán");
         dinhDangNut(btnThanhToan, MAU_DO, true);
         btnThanhToan.setEnabled(false);
-        cboKhuyenMai.setEnabled(false);
-        cboPhuongThuc.setEnabled(false);
         JPanel pnlTongTienHang = new JPanel(new BorderLayout(0, 4));
         JLabel lblTongTienHang = new JLabel("Tổng tiền hàng");
         dinhDangTruong(pnlTongTienHang, lblTongTienHang, txtTongTienHang, 274);
@@ -274,7 +286,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlThongTinThanhToan.add(pnlTienGiam);
         pnlThongTinThanhToan.add(Box.createVerticalStrut(6));
         JPanel pnlTongThanhToan = new JPanel(new BorderLayout(0, 4));
-        JLabel lblTongThanhToan = new JLabel("Tổng thanh toán");
+        JLabel lblTongThanhToan = new JLabel("Tổng thanh toán (gồm VAT 8%)");
         dinhDangTruong(pnlTongThanhToan, lblTongThanhToan, txtTongThanhToan, 274);
         pnlTongThanhToan.add(lblTongThanhToan, BorderLayout.NORTH);
         pnlTongThanhToan.add(txtTongThanhToan, BorderLayout.CENTER);
@@ -310,6 +322,10 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThemDong.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
+        cboKhuyenMai.addActionListener(this);
+        cboPhuongThuc.addActionListener(this);
+        txtTienKhachDua.addActionListener(this);
+        btnThanhToan.addActionListener(this);
         tblDongHang.getSelectionModel().addListSelectionListener(this);
     }
 
@@ -352,9 +368,13 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 hienThiSanPham(service.timSanPham(txtMaSanPham.getText().trim()));
                 txtSoLuong.requestFocusInWindow();
             } else if (nguon == btnThemDong) {
+                boolean dongDauTien = !service.coDongHang();
                 service.themDong(txtMaSanPham.getText().trim(), docSoLuong());
                 capNhatBang();
                 xoaNhapSanPham();
+                if (dongDauTien) {
+                    napKhuyenMai();
+                }
             } else if (nguon == btnSua && tblDongHang.getSelectedRow() >= 0) {
                 int viTri = tblDongHang.getSelectedRow();
                 service.suaSoLuong(viTri, docSoLuong());
@@ -364,9 +384,23 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 service.xoaDong(tblDongHang.getSelectedRow());
                 capNhatBang();
                 xoaNhapSanPham();
+            } else if (nguon == cboKhuyenMai) {
+                int viTri = cboKhuyenMai.getSelectedIndex() - 1;
+                service.chonKhuyenMai(viTri < 0 ? null : danhSachKhuyenMai.get(viTri));
+                capNhatTienThanhToan();
+            } else if (nguon == cboPhuongThuc) {
+                txtTienKhachDua.setText("");
+                capNhatTienThanhToan();
+            } else if (nguon == txtTienKhachDua) {
+                capNhatTienThanhToan();
+            } else if (nguon == btnThanhToan) {
+                thanhToanHoaDon();
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Không đọc được dữ liệu bán hàng từ cơ sở dữ liệu.",
+            String thongBao = nguon == btnThanhToan
+                    ? "Không xác nhận được thanh toán. Kiểm tra hóa đơn đã lưu trước khi thử lại."
+                    : "Không đọc được dữ liệu bán hàng từ cơ sở dữ liệu.";
+            JOptionPane.showMessageDialog(this, thongBao,
                     "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Bán hàng", JOptionPane.WARNING_MESSAGE);
@@ -407,6 +441,82 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                     dong.getSoLuong(), dong.getGiaBan(), dong.tinhThanhTien()});
         }
         txtTongTienHang.setText(service.tinhTongTienHang().toPlainString());
+        btnThanhToan.setEnabled(service.coDongHang());
+        capNhatTienThanhToan();
+    }
+
+    private void napKhuyenMai() throws SQLException {
+        danhSachKhuyenMai = service.layKhuyenMai();
+        cboKhuyenMai.removeAllItems();
+        cboKhuyenMai.addItem("Không áp dụng");
+        for (ChuongTrinhKhuyenMai khuyenMai : danhSachKhuyenMai) {
+            cboKhuyenMai.addItem(khuyenMai.getTenChuongTrinh() + " (" + khuyenMai.getMaKM() + ")");
+        }
+    }
+
+    private void capNhatTienThanhToan() {
+        BigDecimal tong = service.tinhTongThanhToan();
+        txtTienGiam.setText(service.tinhTienGiam().toPlainString());
+        txtTongThanhToan.setText(tong.toPlainString());
+        boolean tienMat = cboPhuongThuc.getSelectedIndex() == 0;
+        txtTienKhachDua.setEditable(tienMat);
+        if (!tienMat) {
+            txtTienKhachDua.setText(tong.toPlainString());
+        }
+        String tienNhap = txtTienKhachDua.getText().trim();
+        BigDecimal tienThoi = tienNhap.matches("[0-9]{1,18}")
+                ? service.tinhTienThoi(new BigDecimal(tienNhap)) : BigDecimal.ZERO;
+        txtTienThoi.setText(tienThoi.toPlainString());
+    }
+
+    private void thanhToanHoaDon() throws SQLException {
+        if (!service.daChonKhachHang(txtKhachHang.getText().trim())) {
+            throw new IllegalArgumentException("Bấm Chọn để xác nhận khách hàng trên hóa đơn.");
+        }
+        String phuongThuc = (String) cboPhuongThuc.getSelectedItem();
+        String tienNhap = txtTienKhachDua.getText().trim();
+        BigDecimal tienKhachDua = null;
+        if ("Tiền mặt".equals(phuongThuc)) {
+            if (!tienNhap.matches("[0-9]{1,18}")) {
+                throw new IllegalArgumentException("Nhập tiền khách đưa bằng số nguyên tối đa 18 chữ số.");
+            }
+            tienKhachDua = new BigDecimal(tienNhap);
+            if (tienKhachDua.compareTo(service.tinhTongThanhToan()) < 0) {
+                throw new IllegalArgumentException("Tiền khách đưa chưa đủ.");
+            }
+        }
+        capNhatTienThanhToan();
+        ArrayList<NhanVien> nhanVien = service.layNhanVienHoatDong();
+        if (nhanVien.isEmpty()) {
+            throw new IllegalArgumentException("Không có nhân viên đang hoạt động.");
+        }
+        String[] luaChon = new String[nhanVien.size()];
+        for (int i = 0; i < nhanVien.size(); i++) {
+            NhanVien nv = nhanVien.get(i);
+            luaChon[i] = nv.getMaNhanVien() + " - " + nv.getHo() + " " + nv.getTen();
+        }
+        Object daChon = JOptionPane.showInputDialog(this,
+                "Chọn nhân viên lập hóa đơn. Tổng thanh toán: " + txtTongThanhToan.getText()
+                        + " đ. Tiền thối: " + txtTienThoi.getText() + " đ.",
+                "Xác nhận thanh toán", JOptionPane.QUESTION_MESSAGE, null, luaChon, null);
+        for (int i = 0; i < luaChon.length; i++) {
+            if (luaChon[i].equals(daChon)) {
+                String ma = service.thanhToan(phuongThuc, tienKhachDua, nhanVien.get(i));
+                txtKhachHang.setText("");
+                lblTenKhachHang.setText("Chưa chọn khách hàng");
+                txtTienKhachDua.setText("");
+                cboKhuyenMai.setSelectedIndex(0);
+                cboPhuongThuc.setSelectedIndex(0);
+                capNhatBang();
+                xoaNhapSanPham();
+                sauThanhToan(ma);
+                return;
+            }
+        }
+    }
+
+    private void sauThanhToan(String ma) {
+        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ".");
     }
 
     private void hienThiSanPham(SanPham sp) {

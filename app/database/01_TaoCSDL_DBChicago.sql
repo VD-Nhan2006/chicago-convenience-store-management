@@ -5,14 +5,13 @@
     Script xóa DBChicago nếu đã có, rồi tạo lại.
     Chạy file này trước 02_DuLieuMau_DBChicago.sql.
 
-    Mọi cột đều NOT NULL, kể cả mô tả, địa chỉ và mã khuyến mãi trên hóa đơn.
+    Mã khuyến mãi trên hóa đơn có thể để trống khi không áp dụng.
 
     Cột suy ra từ cột khác trong cùng dòng, khớp getter của entity:
       SanPham.giaBan           = giaNhap + mucLoiNhuan
       ChiTietHoaDon.thanhTien  = soLuong * giaBan
 
-    Tổng tiền hàng, tiền khuyến mãi, VAT 8% và tiền thối không lưu cột.
-    HoaDon tính các giá trị đó từ chi tiết và chương trình khuyến mãi.
+    Hóa đơn mới lưu tiền giảm và tổng thanh toán tại thời điểm giao dịch.
     mucLoiNhuan là số tiền cộng thêm vào giá nhập, không phải phần trăm.
     giaTriKM kiểu PHAN_TRAM lưu theo thang điểm: 10 nghĩa là 10%.
 
@@ -208,9 +207,11 @@ CREATE TABLE dbo.HoaDon (
     trangThaiThanhToan    NVARCHAR(30)   NOT NULL,
     tienKhachDua          DECIMAL(18, 0) NOT NULL,
     thoiGianThanhToan     DATETIME2(0)   NOT NULL,
-    maKM                  VARCHAR(11)    NOT NULL,
+    maKM                  VARCHAR(11)    NULL,
     maNhanVien            VARCHAR(11)    NOT NULL,
     maKhachHang           VARCHAR(11)    NOT NULL,
+    tienDuocGiam          DECIMAL(18, 0) NULL,
+    tongThanhToan         DECIMAL(18, 0) NULL,
     CONSTRAINT PK_HoaDon PRIMARY KEY (maHoaDon),
     CONSTRAINT FK_HoaDon_KhuyenMai FOREIGN KEY (maKM) REFERENCES dbo.ChuongTrinhKhuyenMai (maKM),
     CONSTRAINT FK_HoaDon_NhanVien FOREIGN KEY (maNhanVien) REFERENCES dbo.NhanVien (maNhanVien),

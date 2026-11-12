@@ -146,7 +146,7 @@ public class HoaDon {
 		}
 		
 		if("TIEN_MAT".equals(chuongTrinhKM.getLoaiKhuyenMai())) {
-			tienKhuyenMai = giaTriKM.min(tongTienSP);
+			tienKhuyenMai = giaTriKM.setScale(0, RoundingMode.HALF_UP).min(tongTienSP);
 		}else if("PHAN_TRAM".equals(chuongTrinhKM.getLoaiKhuyenMai())) {
 			tienKhuyenMai = tongTienSP.multiply(giaTriKM).divide(new BigDecimal("100"), 0, RoundingMode.HALF_UP).min(tongTienSP);
 		}else {
