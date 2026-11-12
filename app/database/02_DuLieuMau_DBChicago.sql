@@ -64,10 +64,10 @@ INSERT INTO dbo.SanPham (maSanPham, tenSanPham, donViTinh, soLuongTon, giaNhap, 
     ('SP071126003', N'Sữa tươi 180ml', N'Hộp', 19, 15000, 3000, N'Đang hoạt động', 'LSP071126002'),
     ('SP071126004', N'Khăn giấy bỏ túi', N'Gói', 40, 12000, 1800, N'Ngừng hoạt động', 'LSP071126004');
 
-INSERT INTO dbo.NhanVien (maNhanVien, ho, ten, soDienThoai, trangThai) VALUES
-    ('NV071126001', N'Trần Minh', N'Quân', '0901000001', N'Đang hoạt động'),
-    ('NV071126002', N'Lê Thu', N'Hà', '0901000002', N'Đang hoạt động'),
-    ('NV071126003', N'Phạm Văn', N'Nam', '0901000003', N'Ngừng hoạt động');
+INSERT INTO dbo.NhanVien (maNhanVien, ho, ten, soDienThoai, diaChi, trangThai) VALUES
+    ('NV071126001', N'Trần Minh', N'Quân', '0901000001', N'25 Phạm Văn Chiêu, Gò Vấp', N'Đang hoạt động'),
+    ('NV071126002', N'Lê Thu', N'Hà', '0901000002', N'78 Lê Đức Thọ, Gò Vấp', N'Đang hoạt động'),
+    ('NV071126003', N'Phạm Văn', N'Nam', '0901000003', N'102 Thống Nhất, Gò Vấp', N'Ngừng hoạt động');
 
 INSERT INTO dbo.TaiKhoan (maNhanVien, matKhau, vaiTro) VALUES
     ('NV071126001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý'),
