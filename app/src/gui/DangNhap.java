@@ -10,17 +10,22 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Font;
+import java.sql.SQLException;
 import javax.swing.UIManager;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import entity.VaiTro;
+import dao.DangNhapDAO;
+import entity.NhanVien;
+import entity.TaiKhoan;
+import service.DangNhapService;
 import session.UserSession;
 
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
+import javax.swing.JOptionPane;
 
 public class DangNhap extends JFrame implements ActionListener{
 	/**
@@ -30,6 +35,7 @@ public class DangNhap extends JFrame implements ActionListener{
 	private JTextField txtMaNV;
 	private JButton btnDangNhap;
 	private JPasswordField passwordField;
+	private final DangNhapService service = new DangNhapService(new DangNhapDAO());
 	public DangNhap() {
 		setTitle("Chicago - ĐĂNG NHẬP");
 		setSize(1280,800);
@@ -129,13 +135,23 @@ public class DangNhap extends JFrame implements ActionListener{
 		});
 
 		btnDangNhap.addActionListener(this);
+		passwordField.addActionListener(this);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == btnDangNhap) {
-			UserSession.dangNhap("Dinh Nhan", VaiTro.QUAN_LY);
+		try {
+			TaiKhoan taiKhoan = service.xacThuc(txtMaNV.getText().trim(), new String(passwordField.getPassword()));
+			NhanVien nv = taiKhoan.getNhanVien();
+			UserSession.dangNhap(nv.getMaNhanVien(), nv.getHo() + " " + nv.getTen(), taiKhoan.getVaiTro());
 			dispose();
 			new FrmChinh().setVisible(true);
+		} catch (IllegalArgumentException ex) {
+			JOptionPane.showMessageDialog(this, ex.getMessage(), "Đăng nhập", JOptionPane.WARNING_MESSAGE);
+			passwordField.selectAll();
+			passwordField.requestFocusInWindow();
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this, "Không kết nối được cơ sở dữ liệu.",
+					"Đăng nhập", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

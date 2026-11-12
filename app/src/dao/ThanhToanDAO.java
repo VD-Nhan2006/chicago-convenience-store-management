@@ -13,7 +13,6 @@ import connectDB.ConnectDB;
 import entity.ChiTietHoaDon;
 import entity.ChuongTrinhKhuyenMai;
 import entity.HoaDon;
-import entity.NhanVien;
 
 public class ThanhToanDAO {
     private static final String HOAT_DONG = "Đang hoạt động";
@@ -35,30 +34,6 @@ public class ThanhToanDAO {
                             rs.getString("loaiKhuyenMai"), rs.getBigDecimal("giaTriKM"),
                             rs.getDate("ngayBatDau").toLocalDate(), rs.getDate("ngayKetThuc").toLocalDate(),
                             rs.getString("trangThai")));
-                }
-                return danhSach;
-            } finally {
-                rs.close();
-            }
-        } finally {
-            stmt.close();
-        }
-    }
-
-    public ArrayList<NhanVien> layNhanVienHoatDong() throws SQLException {
-        String sql = "SELECT maNhanVien, ho, ten FROM dbo.NhanVien "
-                + "WHERE trangThai = ? ORDER BY ten, ho, maNhanVien";
-        PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
-        try {
-            stmt.setNString(1, HOAT_DONG);
-            ResultSet rs = stmt.executeQuery();
-            try {
-                ArrayList<NhanVien> danhSach = new ArrayList<NhanVien>();
-                while (rs.next()) {
-                    NhanVien nhanVien = new NhanVien(rs.getString("maNhanVien"));
-                    nhanVien.setHo(rs.getString("ho"));
-                    nhanVien.setTen(rs.getString("ten"));
-                    danhSach.add(nhanVien);
                 }
                 return danhSach;
             } finally {
