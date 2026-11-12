@@ -12,6 +12,8 @@ public class HoaDon {
 	private String phuongThucThanhToan;
 	private String trangThaiThanhToan;
 	private BigDecimal tienKhachDua;
+	private BigDecimal tienGiamDaLuu;
+	private BigDecimal tongThanhToanDaLuu;
 	private LocalDateTime thoiGianThanhToan;
 	private static final double VAT = 8;
 	private ArrayList<ChiTietHoaDon> listChiTietHoaDon;
@@ -135,6 +137,9 @@ public class HoaDon {
 	}
 	
 	public BigDecimal tinhTienKhuyenMai(BigDecimal tongTienSP) {
+		if (tienGiamDaLuu != null) {
+			return tienGiamDaLuu;
+		}
 		BigDecimal tienKhuyenMai = BigDecimal.ZERO;
 		if(chuongTrinhKM == null||tongTienSP == null||tongTienSP.compareTo(BigDecimal.ZERO)<=0) {
 			return BigDecimal.ZERO; 
@@ -164,10 +169,18 @@ public class HoaDon {
 		return tien.multiply(BigDecimal.valueOf(VAT)).divide(new BigDecimal("100"),0,RoundingMode.HALF_UP);
 	}
 	public BigDecimal tinhTongTienThanhToan() {
+		if (tongThanhToanDaLuu != null) {
+			return tongThanhToanDaLuu;
+		}
 		BigDecimal tongTienSP = tinhTongTienSP();
 		BigDecimal tienSauKM = tongTienSP.subtract(tinhTienKhuyenMai(tongTienSP));
 		BigDecimal tienVAT = tinhVAT(tienSauKM);
 		return tienSauKM.add(tienVAT);
+	}
+
+	public void setSoTienDaLuu(BigDecimal tienGiam, BigDecimal tongThanhToan) {
+		this.tienGiamDaLuu = tienGiam;
+		this.tongThanhToanDaLuu = tongThanhToan;
 	}
 	
 }	

@@ -30,12 +30,15 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import dao.BanHangDAO;
+import dao.HoaDonDAO;
 import entity.ChiTietHoaDon;
 import entity.ChuongTrinhKhuyenMai;
+import entity.HoaDon;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.SanPham;
 import service.BanHangService;
+import service.HoaDonService;
 
 public class BanHang extends JPanel implements ActionListener, ListSelectionListener {
     private static final long serialVersionUID = 1L;
@@ -67,6 +70,9 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtTienKhachDua;
     private JTextField txtTienThoi;
     private JButton btnThanhToan;
+    private JButton btnXemHoaDon;
+    private String maHoaDonGanNhat;
+    private final HoaDonService hoaDonService = new HoaDonService(new HoaDonDAO());
     private ArrayList<ChuongTrinhKhuyenMai> danhSachKhuyenMai = new ArrayList<ChuongTrinhKhuyenMai>();
 
     public BanHang() {
@@ -315,6 +321,11 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlThongTinThanhToan.add(Box.createVerticalStrut(8));
         btnThanhToan.setMaximumSize(new Dimension(274, 34));
         pnlThongTinThanhToan.add(btnThanhToan);
+        pnlThongTinThanhToan.add(Box.createVerticalStrut(8));
+        btnXemHoaDon = new JButton("Xem / xuất hóa đơn");
+        dinhDangNut(btnXemHoaDon, MAU_XANH, false);
+        btnXemHoaDon.setMaximumSize(new Dimension(274, 34));
+        pnlThongTinThanhToan.add(btnXemHoaDon);
 
         btnChon.addActionListener(this);
         txtKhachHang.addActionListener(this);
@@ -326,6 +337,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         cboPhuongThuc.addActionListener(this);
         txtTienKhachDua.addActionListener(this);
         btnThanhToan.addActionListener(this);
+        btnXemHoaDon.addActionListener(this);
         tblDongHang.getSelectionModel().addListSelectionListener(this);
     }
 
@@ -395,6 +407,11 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 capNhatTienThanhToan();
             } else if (nguon == btnThanhToan) {
                 thanhToanHoaDon();
+            } else if (nguon == btnXemHoaDon) {
+                String ma = JOptionPane.showInputDialog(this, "Nhập mã hóa đơn", maHoaDonGanNhat);
+                if (ma != null && !ma.trim().isEmpty()) {
+                    xemHoaDon(ma.trim());
+                }
             }
         } catch (SQLException ex) {
             String thongBao = nguon == btnThanhToan
@@ -516,7 +533,24 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void sauThanhToan(String ma) {
-        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ".");
+        maHoaDonGanNhat = ma;
+        int luaChon = JOptionPane.showConfirmDialog(this, "Đã lưu hóa đơn " + ma + ". Mở hóa đơn để xem hoặc xuất tệp?",
+                "Thanh toán thành công", JOptionPane.YES_NO_OPTION);
+        if (luaChon == JOptionPane.YES_OPTION) {
+            xemHoaDon(ma);
+        }
+    }
+
+    private void xemHoaDon(String ma) {
+        try {
+            HoaDon hoaDon = hoaDonService.layHoaDonDaThanhToan(ma);
+            new HoaDonDialog(JOptionPane.getFrameForComponent(this), hoaDon).setVisible(true);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Không đọc được hóa đơn " + ma + ".",
+                    "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Hóa đơn", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     private void hienThiSanPham(SanPham sp) {
