@@ -171,6 +171,27 @@ public class QuanLyNhanVienDAO {
 	        return false;
 	    }
 	}
+	public boolean xoaNhanVien(String maNhanVien) {
+	    try {
+	        ConnectDB.getInstance();
+	        Connection con = ConnectDB.getConnection();
+
+	        StringBuilder sql = new StringBuilder();
+	        sql.append("UPDATE NhanVien ");
+	        sql.append("SET trangThai = ? ");
+	        sql.append("WHERE maNhanVien = ?");
+
+	        PreparedStatement statement = con.prepareStatement(sql.toString());
+	        statement.setString(1, "Ngừng hoạt động");
+	        statement.setString(2, maNhanVien);
+
+	        return statement.executeUpdate() > 0;
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 
 
 

@@ -455,6 +455,9 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 		if(e.getSource() == btnLamMoi) {
 			lamMoi();
 		}
+		if(e.getSource() == btnXoa) {
+			xoaNhanVien();
+		}
 		
 	}
 
@@ -634,7 +637,39 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 		lamMoiForm();
 	}
 	
-	
+	private void xoaNhanVien() {
+	    int dongChon = tblNhanVien.getSelectedRow();
+
+	    if (dongChon == -1) {
+	        JOptionPane.showMessageDialog(this,
+	                "Vui lòng chọn nhân viên cần ngừng hoạt động!");
+	        return;
+	    }
+
+	    String maNV = tableModel.getValueAt(dongChon, 0).toString();
+
+	    int luaChon = JOptionPane.showConfirmDialog(
+	            this,
+	            "Bạn có chắc muốn ngừng hoạt động nhân viên " + maNV + "?",
+	            "Xác nhận",
+	            JOptionPane.YES_NO_OPTION
+	    );
+
+	    if (luaChon == JOptionPane.YES_OPTION) {
+	        boolean ketQua = nhanVienService.xoaNhanVien(maNV);
+
+	        if (ketQua) {
+	            JOptionPane.showMessageDialog(this,
+	                    "Đã chuyển nhân viên sang trạng thái ngừng hoạt động!");
+
+	            loadDuLieuNhanVien();
+	            lamMoiForm();
+	        } else {
+	            JOptionPane.showMessageDialog(this,
+	                    "Không thể cập nhật trạng thái nhân viên!");
+	        }
+	    }
+	}
 
 
 

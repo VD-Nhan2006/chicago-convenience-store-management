@@ -33,4 +33,11 @@ public class QuanLyNhanVienService {
 
 	    return nhanVienDAO.capNhatNhanVien(nv);
 	}
+	
+	public boolean xoaNhanVien(String maNV) {
+		if(maNV == null || maNV.trim().isEmpty()) {
+			return false;
+		}
+		return nhanVienDAO.xoaNhanVien(maNV);
+	}
 }
