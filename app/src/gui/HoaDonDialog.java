@@ -59,8 +59,9 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         pnlTieuDe.add(tieuDe, BorderLayout.CENTER);
         themMuc(trang, pnlTieuDe);
         themMuc(trang, taoThongTin());
-        themMuc(trang, taoChiTiet());
-        trang.add(taoDongGhiChu());
+        JPanel chiTiet = taoChiTiet();
+        chiTiet.setAlignmentX(LEFT_ALIGNMENT);
+        trang.add(chiTiet);
 
         JScrollPane cuon = new JScrollPane(trang);
         cuon.setBorder(BorderFactory.createEmptyBorder());
@@ -208,16 +209,6 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         dong.add(tieuDe, BorderLayout.WEST);
         dong.add(soTien, BorderLayout.CENTER);
         return dong;
-    }
-
-    private JPanel taoDongGhiChu() {
-        JPanel ghiChu = new JPanel(new BorderLayout(16, 0));
-        ghiChu.setBackground(MAU_NEN);
-        ghiChu.setBorder(khung(10));
-        ghiChu.setAlignmentX(LEFT_ALIGNMENT);
-        ghiChu.add(nhan("Ghi chú", 14, Font.BOLD), BorderLayout.WEST);
-        ghiChu.add(nhan("—", 14, Font.PLAIN), BorderLayout.CENTER);
-        return ghiChu;
     }
 
     private void themMuc(JPanel trang, JPanel muc) {
