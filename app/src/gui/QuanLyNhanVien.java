@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,6 +27,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import entity.NhanVien;
+import service.QuanLyNhanVienService;
 
 public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelectionListener{
 
@@ -57,6 +61,8 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
     private JButton btnCapNhat;
     private JButton btnXoa;
     private JButton btnLamMoi;
+    
+    private QuanLyNhanVienService nhanVienService = new QuanLyNhanVienService();
 
     public QuanLyNhanVien() {
 
@@ -69,6 +75,8 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 
         taoTieuDe();
         taoNoiDung();
+        
+        loadDuLieuNhanVien();
 
     }
 
@@ -272,8 +280,8 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 
         // Trạng thái
         cboTrangThai = new JComboBox<>(new String[] {
-            "Đang làm việc",
-            "Ngừng làm việc"
+            "Đang hoạt động",
+            "Ngừng hoạt động"
         });
 
         pnlForm.add(
@@ -440,6 +448,38 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 
         }
 		
+	}
+	
+	private void loadDuLieuNhanVien() {
+
+	    // Xóa dữ liệu cũ trên bảng
+	    tableModel.setRowCount(0);
+
+	    // Lấy danh sách nhân viên từ Service
+	    ArrayList<NhanVien> dsNV = nhanVienService.getAllNhanVien();
+
+	    // Duyệt danh sách và đưa từng nhân viên lên bảng
+	    for (NhanVien nv : dsNV) {
+
+	        // Lấy vai trò từ tài khoản
+	        String vaiTro = "";
+
+	        if (nv.getTaiKhoan() != null) {
+	            vaiTro = nv.getTaiKhoan().getVaiTro().getTenHienThi();
+	        }
+
+	        Object[] row = {
+	            nv.getMaNhanVien(),
+	            nv.getHo(),
+	            nv.getTen(),
+	            nv.getSoDienThoai(),
+	            nv.getDiaChi(),
+	            vaiTro,
+	            nv.getTrangThai()
+	        };
+
+	        tableModel.addRow(row);
+	    }
 	}
 
 }
