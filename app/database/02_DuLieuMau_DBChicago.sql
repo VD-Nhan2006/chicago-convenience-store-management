@@ -24,7 +24,12 @@
       1 hộp sữa 18.000, giảm 5.000, còn 13.000, VAT 8% = 1.040, phải trả 14.040
       chuyển khoản đúng số tiền phải trả.
 
+    Tài khoản admin: đăng nhập bằng mã NV071126004, vai trò Quản lý, mật khẩu 123456.
+
+    TaiKhoan.trangThai: tài khoản của nhân viên đã ngừng hoạt động (NV071126003) cũng là Ngừng hoạt động.
+
     gioiTinh: Nam hoặc Nữ. Nguyễn Thị Mai = Nữ, Lê Hoàng Phúc = Nam.
+    tienDuocGiam, tongThanhToan trên hóa đơn mẫu khớp phần tính ở trên (tongThanhToan đã gồm VAT 8%).
     Mọi cột đều có giá trị, không dòng nào để trống.
 */
 USE DBChicago;
@@ -67,12 +72,14 @@ INSERT INTO dbo.SanPham (maSanPham, tenSanPham, donViTinh, soLuongTon, giaNhap, 
 INSERT INTO dbo.NhanVien (maNhanVien, ho, ten, soDienThoai, diaChi, trangThai) VALUES
     ('NV071126001', N'Trần Minh', N'Quân', '0901000001', N'25 Phạm Văn Chiêu, Gò Vấp', N'Đang hoạt động'),
     ('NV071126002', N'Lê Thu', N'Hà', '0901000002', N'78 Lê Đức Thọ, Gò Vấp', N'Đang hoạt động'),
-    ('NV071126003', N'Phạm Văn', N'Nam', '0901000003', N'102 Thống Nhất, Gò Vấp', N'Ngừng hoạt động');
+    ('NV071126003', N'Phạm Văn', N'Nam', '0901000003', N'102 Thống Nhất, Gò Vấp', N'Ngừng hoạt động'),
+    ('NV071126004', N'Quản Trị', N'Admin', '0901000004', N'1 Nguyễn Văn Bảo, Gò Vấp', N'Đang hoạt động');
 
-INSERT INTO dbo.TaiKhoan (maNhanVien, matKhau, vaiTro) VALUES
-    ('NV071126001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý'),
-    ('NV071126002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân'),
-    ('NV071126003', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân');
+INSERT INTO dbo.TaiKhoan (maNhanVien, matKhau, vaiTro, trangThai) VALUES
+    ('NV071126001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý', N'Đang hoạt động'),
+    ('NV071126002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân', N'Đang hoạt động'),
+    ('NV071126003', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân', N'Ngừng hoạt động'),
+    ('NV071126004', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý', N'Đang hoạt động');
 
 INSERT INTO dbo.KhachHang (maKhachHang, ho, ten, gioiTinh, soDienThoai, diaChi) VALUES
     ('KH071126001', N'Nguyễn Thị', N'Mai', N'Nữ', '0912000001', N'12 Nguyễn Văn Bảo, Gò Vấp'),
@@ -86,10 +93,10 @@ VALUES
     ('KM071126003', N'Giảm 20% đã ngừng', N'Chương trình đã ngừng hoạt động', N'PHAN_TRAM', 20.00, '2026-10-01', '2026-10-31', N'Ngừng hoạt động');
 
 INSERT INTO dbo.HoaDon
-    (maHoaDon, ngayGioLap, phuongThucThanhToan, trangThaiThanhToan, tienKhachDua, thoiGianThanhToan, maKM, maNhanVien, maKhachHang)
+    (maHoaDon, ngayGioLap, phuongThucThanhToan, trangThaiThanhToan, tienKhachDua, thoiGianThanhToan, maKM, maNhanVien, maKhachHang, tienDuocGiam, tongThanhToan)
 VALUES
-    ('HD0711260001', '2026-11-07T09:15:00', N'Tiền mặt', N'Đã thanh toán', 50000, '2026-11-07T09:15:00', 'KM071126001', 'NV071126002', 'KH071126001'),
-    ('HD0711260002', '2026-11-07T14:40:00', N'Chuyển khoản', N'Đã thanh toán', 14040, '2026-11-07T14:40:00', 'KM071126002', 'NV071126002', 'KH071126002');
+    ('HD0711260001', '2026-11-07T09:15:00', N'Tiền mặt', N'Đã thanh toán', 50000, '2026-11-07T09:15:00', 'KM071126001', 'NV071126002', 'KH071126001', 4400, 42768),
+    ('HD0711260002', '2026-11-07T14:40:00', N'Chuyển khoản', N'Đã thanh toán', 14040, '2026-11-07T14:40:00', 'KM071126002', 'NV071126002', 'KH071126002', 5000, 14040);
 
 INSERT INTO dbo.ChiTietHoaDon (maHoaDon, maSanPham, soLuong, giaBan) VALUES
     ('HD0711260001', 'SP071126001', 2, 10000),
