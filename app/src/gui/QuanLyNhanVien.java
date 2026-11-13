@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -77,6 +78,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
         taoNoiDung();
         
         loadDuLieuNhanVien();
+        txtMaNV.setText(nhanVienService.sinhMaNhanVien());
 
     }
 
@@ -271,12 +273,17 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
         );
 
         // Vai trò
-        cboVaiTro = new JComboBox<>(new String[] {
-            "Thu ngân",
-            "Quản lý"
-        });
+//        cboVaiTro = new JComboBox<>(new String[] {
+//        	    "Chưa có tài khoản",
+//        	    "Thu ngân",
+//        	    "Quản lý"
+//        	});
+//
+//        	cboVaiTro.setEnabled(false);
 
-        pnlForm.add(taoTruongNhap("Vai trò", cboVaiTro));
+//        	pnlForm.add(taoTruongNhap("Vai trò", cboVaiTro));
+
+//        pnlForm.add(taoTruongNhap("Vai trò", cboVaiTro));
 
         // Trạng thái
         cboTrangThai = new JComboBox<>(new String[] {
@@ -366,6 +373,10 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
         btnLamMoi.setBorder(
             BorderFactory.createLineBorder(MAU_XANH)
         );
+        btnThem.addActionListener(this);
+        btnCapNhat.addActionListener(this);
+        btnXoa.addActionListener(this);
+        btnLamMoi.addActionListener(this);
 
     }
 
@@ -420,9 +431,13 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
             tableModel.getValueAt(row, 4).toString()
         );
 
-        cboVaiTro.setSelectedItem(
-            tableModel.getValueAt(row, 5).toString()
-        );
+//        int rowModel = tblNhanVien.convertRowIndexToModel(row);
+//
+//        String vaiTro = tableModel.getValueAt(rowModel, 5).toString();
+//
+//        cboVaiTro.setSelectedItem(
+//            vaiTro.isEmpty() ? "Chưa có tài khoản" : vaiTro
+//        );
 
         cboTrangThai.setSelectedItem(
             tableModel.getValueAt(row, 6).toString()
@@ -431,7 +446,9 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		if(e.getSource() == btnThem) {
+			themNhanVien();
+		}
 		
 	}
 
@@ -461,12 +478,15 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 	    // Duyệt danh sách và đưa từng nhân viên lên bảng
 	    for (NhanVien nv : dsNV) {
 
-	        // Lấy vai trò từ tài khoản
-	        String vaiTro = "";
+	    	String vaiTro = "Chưa có tài khoản";
 
-	        if (nv.getTaiKhoan() != null) {
-	            vaiTro = nv.getTaiKhoan().getVaiTro().getTenHienThi();
-	        }
+	    	if (nv.getTaiKhoan() != null
+	    	        && nv.getTaiKhoan().getVaiTro() != null) {
+
+	    	    vaiTro = nv.getTaiKhoan()
+	    	               .getVaiTro()
+	    	               .getTenHienThi();
+	    	}
 
 	        Object[] row = {
 	            nv.getMaNhanVien(),
@@ -481,5 +501,72 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 	        tableModel.addRow(row);
 	    }
 	}
+
+	private void themNhanVien() {
+	
+	    try {
+	        // Tạo đối tượng nhân viên từ dữ liệu trên form
+	        NhanVien nv = new NhanVien(
+	            txtMaNV.getText().trim(),
+	            txtHo.getText().trim(),
+	            txtTen.getText().trim(),
+	            txtSoDienThoai.getText().trim(),
+	            txtDiaChi.getText().trim(),
+	            cboTrangThai.getSelectedItem().toString()
+	        );
+	
+	        // Gọi Service thêm nhân viên
+	        boolean ketQua = nhanVienService.themNhanVien(nv);
+	
+	        if (ketQua) {
+	
+	            JOptionPane.showMessageDialog(
+	                this,
+	                "Thêm nhân viên thành công!"
+	            );
+	
+	            // Cập nhật lại bảng
+	            loadDuLieuNhanVien();
+	
+	            // Làm mới form
+	            lamMoiForm();
+	
+	        } else {
+	
+	            JOptionPane.showMessageDialog(
+	                this,
+	                "Thêm nhân viên thất bại!",
+	                "Thông báo",
+	                JOptionPane.ERROR_MESSAGE
+	            );
+	        }
+	
+	    } catch (IllegalArgumentException ex) {
+	
+	        JOptionPane.showMessageDialog(
+	            this,
+	            ex.getMessage(),
+	            "Dữ liệu không hợp lệ",
+	            JOptionPane.WARNING_MESSAGE
+	        );
+	    }
+	}
+	
+	private void lamMoiForm() {
+
+	    txtHo.setText("");
+	    txtTen.setText("");
+	    txtSoDienThoai.setText("");
+	    txtDiaChi.setText("");
+
+	    cboVaiTro.setSelectedItem("Chưa có tài khoản");
+	    cboTrangThai.setSelectedIndex(0);
+
+	    tblNhanVien.clearSelection();
+
+	    // Sinh mã nhân viên mới
+	    txtMaNV.setText(nhanVienService.sinhMaNhanVien());
+	}
+
 
 }
