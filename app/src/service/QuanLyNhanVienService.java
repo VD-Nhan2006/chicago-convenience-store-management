@@ -25,4 +25,12 @@ public class QuanLyNhanVienService {
 	public String sinhMaNhanVien() {
 		return nhanVienDAO.sinhMaNhanVien();
 	}
+	public boolean capNhatNhanVien(NhanVien nv) {
+
+	    if (nv == null) {
+	        return false;
+	    }
+
+	    return nhanVienDAO.capNhatNhanVien(nv);
+	}
 }

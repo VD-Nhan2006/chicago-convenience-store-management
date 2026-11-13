@@ -54,7 +54,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
     private JTextField txtSoDienThoai;
     private JTextField txtDiaChi;
 
-    private JComboBox<String> cboVaiTro;
+//    private JComboBox<String> cboVaiTro;
     private JComboBox<String> cboTrangThai;
 
     // Các nút
@@ -449,12 +449,18 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 		if(e.getSource() == btnThem) {
 			themNhanVien();
 		}
+		if(e.getSource() == btnCapNhat) {
+			capNhatNhanVien();
+		}
+		if(e.getSource() == btnLamMoi) {
+			lamMoi();
+		}
 		
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		// TODO Auto-generated method stub
+		
 		if (!e.getValueIsAdjusting()) {
 
             int row = tblNhanVien.getSelectedRow();
@@ -559,7 +565,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 	    txtSoDienThoai.setText("");
 	    txtDiaChi.setText("");
 
-	    cboVaiTro.setSelectedItem("Chưa có tài khoản");
+//	    cboVaiTro.setSelectedItem("Chưa có tài khoản");
 	    cboTrangThai.setSelectedIndex(0);
 
 	    tblNhanVien.clearSelection();
@@ -567,6 +573,69 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, ListSelect
 	    // Sinh mã nhân viên mới
 	    txtMaNV.setText(nhanVienService.sinhMaNhanVien());
 	}
+	
+
+	private void capNhatNhanVien() {
+	
+	    try {
+	        // Kiểm tra đã chọn nhân viên cần cập nhật
+	        if (tblNhanVien.getSelectedRow() == -1) {
+	            JOptionPane.showMessageDialog(
+	                this,
+	                "Vui lòng chọn nhân viên cần cập nhật!"
+	            );
+	            return;
+	        }
+	
+	        // Tạo đối tượng nhân viên từ dữ liệu trên form
+	        NhanVien nv = new NhanVien(
+	            txtMaNV.getText().trim(),
+	            txtHo.getText().trim(),
+	            txtTen.getText().trim(),
+	            txtSoDienThoai.getText().trim(),
+	            txtDiaChi.getText().trim(),
+	            cboTrangThai.getSelectedItem().toString()
+	        );
+	
+	        // Gọi Service cập nhật
+	        boolean ketQua = nhanVienService.capNhatNhanVien(nv);
+	
+	        if (ketQua) {
+	
+	            JOptionPane.showMessageDialog(
+	                this,
+	                "Cập nhật nhân viên thành công!"
+	            );
+	
+	            loadDuLieuNhanVien();
+	            lamMoiForm();
+	
+	        } else {
+	
+	            JOptionPane.showMessageDialog(
+	                this,
+	                "Cập nhật nhân viên thất bại!"
+	            );
+	        }
+	
+	    } catch (IllegalArgumentException ex) {
+	
+	        JOptionPane.showMessageDialog(
+	            this,
+	            ex.getMessage(),
+	            "Dữ liệu không hợp lệ",
+	            JOptionPane.WARNING_MESSAGE
+	        );
+	    }
+	}
+	
+	private void lamMoi() {
+		loadDuLieuNhanVien();
+		lamMoiForm();
+	}
+	
+	
+
 
 
 }

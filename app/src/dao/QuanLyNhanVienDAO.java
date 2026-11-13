@@ -139,6 +139,40 @@ public class QuanLyNhanVienDAO {
 	    }
 	}
 
+	public boolean capNhatNhanVien(NhanVien nv) {
+	
+	    try {
+	        ConnectDB.getInstance();
+	        Connection con = ConnectDB.getConnection();
+	
+	        StringBuilder sql = new StringBuilder();
+	        sql.append("UPDATE NhanVien SET ");
+	        sql.append("ho = ?, ");
+	        sql.append("ten = ?, ");
+	        sql.append("soDienThoai = ?, ");
+	        sql.append("diaChi = ?, ");
+	        sql.append("trangThai = ? ");
+	        sql.append("WHERE maNhanVien = ?");
+	
+	        PreparedStatement statement =
+	                con.prepareStatement(sql.toString());
+	
+	        statement.setString(1, nv.getHo());
+	        statement.setString(2, nv.getTen());
+	        statement.setString(3, nv.getSoDienThoai());
+	        statement.setString(4, nv.getDiaChi());
+	        statement.setString(5, nv.getTrangThai());
+	        statement.setString(6, nv.getMaNhanVien());
+	
+	        return statement.executeUpdate() > 0;
+	
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
+
 
 	
 	
