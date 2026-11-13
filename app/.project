@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>chicago-convenience-store-management</name>
+	<name>chicago-convenience-store-management-app</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -16,7 +16,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1794120479954</id>
+			<id>1794585768156</id>
 			<name></name>
 			<type>30</type>
 			<matcher>

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Chicago - Main",
+      "request": "launch",
+      "mainClass": "main.Main",
+      "projectName": "chicago-convenience-store-management-app",
+      "cwd": "${workspaceFolder}/app",
+      "vmArgs": "-Djava.library.path=${workspaceFolder}/app/lib/native/x64"
+    }
+  ]
+}

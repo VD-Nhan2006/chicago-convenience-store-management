@@ -4,43 +4,53 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public final class ConnectDB {
-    private ConnectDB() {
-    }
+public class ConnectDB {
+	private static Connection con = null;
 
-    public static Connection getConnection() throws SQLException {
-        String server = setting("CHICAGO_DB_SERVER", "localhost");
-        String port = setting("CHICAGO_DB_PORT", "1433");
-        String instance = setting("CHICAGO_DB_INSTANCE", "");
-        String database = setting("CHICAGO_DB_NAME", "DBChicago");
-        String authentication = setting("CHICAGO_DB_AUTH", "sql");
+	private static final ConnectDB INSTANCE = new ConnectDB();
 
-        StringBuilder url = new StringBuilder("jdbc:sqlserver://").append(server);
-        if (!instance.isEmpty()) {
-            url.append(";instanceName=").append(instance);
-        } else {
-            url.append(':').append(port);
-        }
-        url.append(";databaseName=").append(database)
-                .append(";encrypt=true;trustServerCertificate=true;loginTimeout=10;");
-        if ("windows".equalsIgnoreCase(authentication)) {
-            url.append("integratedSecurity=true;");
-            return DriverManager.getConnection(url.toString());
-        }
-        if (!"sql".equalsIgnoreCase(authentication)) {
-            throw new SQLException("CHICAGO_DB_AUTH chỉ nhận giá trị 'windows' hoặc 'sql'.");
-        }
+	private static final String SERVER = "localhost";
+	private static final int PORT = 1433;
+	private static final String DATABASE = "DBChicago";
 
-        String user = setting("CHICAGO_DB_USER", "sa");
-        String password = setting("CHICAGO_DB_PASSWORD", "");
-        return DriverManager.getConnection(url.toString(), user, password);
-    }
+	private ConnectDB() {
+	}
 
-    private static String setting(String name, String defaultValue) {
-        String value = System.getProperty(name);
-        if (value == null || value.trim().isEmpty()) {
-            value = System.getenv(name);
-        }
-        return value == null || value.trim().isEmpty() ? defaultValue : value.trim();
-    }
+	public static ConnectDB getInstance() {
+		return INSTANCE;
+	}
+
+	public void connect() throws SQLException {
+		if (con != null && !con.isClosed()) {
+			return;
+		}
+
+		String server = System.getProperty("chicago.db.server", SERVER);
+		String port = System.getProperty("chicago.db.port", String.valueOf(PORT));
+		String database = System.getProperty("chicago.db.name", DATABASE);
+		String url = "jdbc:sqlserver://" + server + ":" + port
+				+ ";databaseName=" + database
+				+ ";encrypt=true;trustServerCertificate=true;integratedSecurity=true;";
+		con = DriverManager.getConnection(url);
+	}
+
+	public static Connection getConnection() throws SQLException {
+		if (con == null || con.isClosed()) {
+			getInstance().connect();
+		}
+		return con;
+	}
+
+	public void disconnect() {
+		if (con == null) {
+			return;
+		}
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			con = null;
+		}
+	}
 }
