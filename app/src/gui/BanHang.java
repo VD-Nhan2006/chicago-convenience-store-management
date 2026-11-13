@@ -80,8 +80,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtTienKhachDua;
     private JTextField txtTienThoi;
     private JButton btnThanhToan;
-    private JButton btnXemHoaDon;
-    private String maHoaDonHienTai;
     private final HoaDonService hoaDonService = new HoaDonService(new HoaDonDAO());
     private ArrayList<ChuongTrinhKhuyenMai> danhSachKhuyenMai = new ArrayList<ChuongTrinhKhuyenMai>();
 
@@ -349,13 +347,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThanhToan.setAlignmentX(LEFT_ALIGNMENT);
         btnThanhToan.setMaximumSize(new Dimension(274, 34));
         pnlThongTinThanhToan.add(btnThanhToan);
-        pnlThongTinThanhToan.add(Box.createVerticalStrut(8));
-        btnXemHoaDon = new JButton("Xem / xuất hóa đơn");
-        dinhDangNut(btnXemHoaDon, MAU_XANH, false);
-        btnXemHoaDon.setAlignmentX(LEFT_ALIGNMENT);
-        btnXemHoaDon.setMaximumSize(new Dimension(274, 34));
-        btnXemHoaDon.setEnabled(false);
-        pnlThongTinThanhToan.add(btnXemHoaDon);
         pnlThongTinThanhToan.add(Box.createVerticalGlue());
 
         btnChon.addActionListener(this);
@@ -372,7 +363,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         txtTienKhachDua.addActionListener(this);
         txtTienKhachDua.addKeyListener(this);
         btnThanhToan.addActionListener(this);
-        btnXemHoaDon.addActionListener(this);
         tblDongHang.getSelectionModel().addListSelectionListener(this);
     }
 
@@ -451,8 +441,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 capNhatTienThanhToan();
             } else if (nguon == btnThanhToan) {
                 thanhToanHoaDon();
-            } else if (nguon == btnXemHoaDon && maHoaDonHienTai != null) {
-                xemHoaDon(maHoaDonHienTai);
             }
         } catch (SQLException ex) {
             String thongBao = nguon == btnThanhToan
@@ -692,10 +680,13 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void sauThanhToan(String ma) {
-        maHoaDonHienTai = ma;
-        btnXemHoaDon.setEnabled(true);
-        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ".",
-                "Thanh toán thành công", JOptionPane.INFORMATION_MESSAGE);
+        Object[] tuyChon = {"Đóng", "Xem hóa đơn"};
+        int luaChon = JOptionPane.showOptionDialog(this, "Đã lưu hóa đơn " + ma + ".",
+                "Thanh toán thành công", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                null, tuyChon, tuyChon[0]);
+        if (luaChon == 1) {
+            xemHoaDon(ma);
+        }
     }
 
     private void xemHoaDon(String ma) {

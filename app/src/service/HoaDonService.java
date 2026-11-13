@@ -29,6 +29,12 @@ public class HoaDonService {
         return hoaDon;
     }
 
+    public static File xuatHoaDonVaoDuAn(HoaDon hd) throws IOException {
+        File tep = new File("HoaDon/" + hd.getMaHoaDon() + ".txt");
+        xuatHoaDonTxt(hd, tep);
+        return tep;
+    }
+
     public static void xuatHoaDonTxt(HoaDon hd, File tep) throws IOException {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tep), "UTF-8"));
         try {
