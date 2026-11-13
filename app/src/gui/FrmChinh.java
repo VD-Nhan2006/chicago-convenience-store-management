@@ -47,7 +47,6 @@ public class FrmChinh extends JFrame implements ActionListener{
 	private Map<JButton, String> danhSachMenu;
 	private JButton btnDashboard;
 	private JButton btnBanHang;
-	private BanHang pnlBanHang;
 	private JButton btnTimKiemHoaDon;
 	private JButton btnQuanLyKhachHang;
 	private JButton btnQuanLySanPham;
@@ -332,9 +331,11 @@ public class FrmChinh extends JFrame implements ActionListener{
     
     private void taoCardManHinh() {
     	pnlNoiDung.add(new QuanLyNhanVien(), "NHAN_VIEN");
-        pnlBanHang = new BanHang();
-        pnlNoiDung.add(pnlBanHang, "BAN_HANG");
-        pnlNoiDung.add(new QuanLyTaiKhoan(), "TAI_KHOAN");
+        pnlNoiDung.add(new BanHang(), "BAN_HANG");
+        pnlNoiDung.add(new QuanLyKhachHang(), "KHACH_HANG");
+        pnlNoiDung.add(new TimKiemHoaDon(), "TIM_KIEM_HOA_DON");
+        pnlNoiDung.add(new Dashboard(), "DASHBOARD");
+        pnlNoiDung.add(new ThongKe(), "THONG_KE");
     }
 
 	@Override
@@ -358,9 +359,6 @@ public class FrmChinh extends JFrame implements ActionListener{
 		String maManHinh = danhSachMenu.get(btn);
 		if(maManHinh != null) {
 			cardLayout.show(pnlNoiDung, maManHinh);
-			if (btn == btnBanHang) {
-				pnlBanHang.napDanhMucTraCuu();
-			}
 		}
 		
 	}

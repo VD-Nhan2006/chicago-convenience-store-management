@@ -28,15 +28,11 @@ public class ConnectDB {
             return;
         }
 
-        String server = System.getProperty("chicago.db.server", SERVER);
-        String port = System.getProperty("chicago.db.port", String.valueOf(PORT));
-        String url = "jdbc:sqlserver://" + server + ":" + port
-                + ";databaseName=" + System.getProperty("chicago.db.name", DATABASE)
+        String url = "jdbc:sqlserver://" + SERVER + ":" + PORT
+                + ";databaseName=" + DATABASE
                 + ";encrypt=true;trustServerCertificate=true;";
 
-        con = DriverManager.getConnection(url,
-                System.getProperty("chicago.db.user", USER),
-                System.getProperty("chicago.db.password", PASSWORD));
+        con = DriverManager.getConnection(url, USER, PASSWORD);
     }
 
     public static Connection getConnection() throws SQLException {
