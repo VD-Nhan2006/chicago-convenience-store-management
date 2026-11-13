@@ -76,27 +76,6 @@ public class BanHangDAO {
         }
     }
 
-    public ArrayList<SanPham> laySanPhamHoatDong() throws SQLException {
-        String sql = "SELECT maSanPham, tenSanPham, donViTinh, soLuongTon, giaNhap, "
-                + "mucLoiNhuan, trangThai, maLoaiSanPham FROM dbo.SanPham WHERE trangThai = ? ORDER BY maSanPham";
-        PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
-        try {
-            stmt.setNString(1, "Đang hoạt động");
-            ResultSet result = stmt.executeQuery();
-            try {
-                ArrayList<SanPham> danhSach = new ArrayList<SanPham>();
-                while (result.next()) {
-                    danhSach.add(docSanPham(result));
-                }
-                return danhSach;
-            } finally {
-                result.close();
-            }
-        } finally {
-            stmt.close();
-        }
-    }
-
     private KhachHang docKhachHang(ResultSet result) throws SQLException {
         return new KhachHang(result.getString("maKhachHang"), result.getString("ho"), result.getString("ten"),
                 result.getString("gioiTinh"), result.getString("soDienThoai"), result.getString("diaChi"));

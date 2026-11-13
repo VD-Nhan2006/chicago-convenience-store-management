@@ -24,7 +24,6 @@ public class BanHangService {
     private final HoaDon hoaDon = new HoaDon();
     private final ArrayList<ChiTietHoaDon> dongHang = new ArrayList<ChiTietHoaDon>();
     private ArrayList<KhachHang> danhMucKhachHang;
-    private ArrayList<SanPham> danhMucSanPham;
 
     public BanHangService(BanHangDAO dao) {
         this(dao, new ThanhToanDAO());
@@ -69,31 +68,9 @@ public class BanHangService {
         return ketQua;
     }
 
-    public ArrayList<SanPham> goiYSanPham(String tuKhoa) throws SQLException {
-        if (danhMucSanPham == null) {
-            danhMucSanPham = dao.laySanPhamHoatDong();
-        }
-        Pattern mau = Pattern.compile(Pattern.quote(tuKhoa), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-        ArrayList<SanPham> ketQua = new ArrayList<SanPham>();
-        for (SanPham sp : danhMucSanPham) {
-            if (tuKhoa.equalsIgnoreCase(sp.getMaSanPham())) {
-                ketQua.clear();
-                ketQua.add(sp);
-                return ketQua;
-            }
-            if (ketQua.size() < GIOI_HAN_GOI_Y
-                    && (mau.matcher(sp.getMaSanPham()).find() || mau.matcher(sp.getTenSanPham()).find())) {
-                ketQua.add(sp);
-            }
-        }
-        return ketQua;
-    }
-
     public void napDanhMucTraCuu() throws SQLException {
         danhMucKhachHang = null;
-        danhMucSanPham = null;
         danhMucKhachHang = dao.layKhachHang();
-        danhMucSanPham = dao.laySanPhamHoatDong();
     }
 
     public void chonKhachHangGoiY(KhachHang khachHang) {
@@ -216,7 +193,6 @@ public class BanHangService {
                 layDongHang(), daChon, nhanVien, hoaDon.getKhachHang());
         String tienTo = "HD" + thoiDiem.format(DateTimeFormatter.ofPattern("ddMMyy"));
         String ma = thanhToanDAO.luuHoaDon(hoaDonLuu, tienTo);
-        danhMucSanPham = null;
         dongHang.clear();
         hoaDon.setKhachHang(null);
         hoaDon.setChuongTrinhKM(null);
@@ -230,8 +206,13 @@ public class BanHangService {
     }
 
     private void kiemTraTon(SanPham sanPham, long soLuong) {
-        if (soLuong > sanPham.getSoLuongTon()) {
-            throw new IllegalArgumentException("Số lượng vượt tồn kho (" + sanPham.getSoLuongTon() + ").");
+        int tonKho = sanPham.getSoLuongTon();
+        if (tonKho == 0) {
+            throw new IllegalArgumentException("Sản phẩm " + sanPham.getTenSanPham() + " đã hết hàng.");
+        }
+        if (soLuong > tonKho) {
+            throw new IllegalArgumentException("Sản phẩm " + sanPham.getTenSanPham() + " chỉ còn "
+                    + tonKho + " " + sanPham.getDonViTinh() + " trong kho. Tổng số lượng yêu cầu: " + soLuong + ".");
         }
     }
 }

@@ -56,10 +56,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtKhachHang;
     private JList<String> lstGoiYKhachHang;
     private JPopupMenu popGoiYKhachHang;
-    private JList<String> lstGoiYSanPham;
-    private JPopupMenu popGoiYSanPham;
     private ArrayList<KhachHang> goiYKhachHang = new ArrayList<KhachHang>();
-    private ArrayList<SanPham> goiYSanPham = new ArrayList<SanPham>();
     private String tuKhoaKhachHang = "";
     private String tuKhoaSanPham = "";
     private JLabel lblTenKhachHang;
@@ -84,7 +81,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtTienThoi;
     private JButton btnThanhToan;
     private JButton btnXemHoaDon;
-    private String maHoaDonGanNhat;
+    private String maHoaDonHienTai;
     private final HoaDonService hoaDonService = new HoaDonService(new HoaDonDAO());
     private ArrayList<ChuongTrinhKhuyenMai> danhSachKhuyenMai = new ArrayList<ChuongTrinhKhuyenMai>();
 
@@ -153,7 +150,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlSanPham.setAlignmentX(LEFT_ALIGNMENT);
         txtMaSanPham = new JTextField("");
         dinhDangOChu(txtMaSanPham, true);
-        txtMaSanPham.setToolTipText("Nhập một phần mã hoặc tên sản phẩm để tìm");
+        txtMaSanPham.setToolTipText("Nhập đủ mã sản phẩm, ví dụ SP071126001");
         txtTenSanPham = new JTextField("");
         dinhDangOChu(txtTenSanPham, false);
         txtDonViTinh = new JTextField("");
@@ -215,8 +212,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlThemDong.add(btnThemDong, BorderLayout.CENTER);
         pnlSanPham.add(pnlThemDong);
         pnlNhap.add(pnlSanPham);
-        lstGoiYSanPham = new JList<String>();
-        popGoiYSanPham = taoPopupGoiY(lstGoiYSanPham);
 
         JPanel pnlHoaDon = new JPanel(new BorderLayout(12, 0));
         pnlHoaDon.setOpaque(false);
@@ -359,6 +354,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         dinhDangNut(btnXemHoaDon, MAU_XANH, false);
         btnXemHoaDon.setAlignmentX(LEFT_ALIGNMENT);
         btnXemHoaDon.setMaximumSize(new Dimension(274, 34));
+        btnXemHoaDon.setEnabled(false);
         pnlThongTinThanhToan.add(btnXemHoaDon);
         pnlThongTinThanhToan.add(Box.createVerticalGlue());
 
@@ -368,7 +364,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         txtKhachHang.addKeyListener(this);
         txtMaSanPham.addKeyListener(this);
         lstGoiYKhachHang.addListSelectionListener(this);
-        lstGoiYSanPham.addListSelectionListener(this);
         btnThemDong.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
@@ -456,11 +451,8 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 capNhatTienThanhToan();
             } else if (nguon == btnThanhToan) {
                 thanhToanHoaDon();
-            } else if (nguon == btnXemHoaDon) {
-                String ma = JOptionPane.showInputDialog(this, "Nhập mã hóa đơn", maHoaDonGanNhat);
-                if (ma != null && !ma.trim().isEmpty()) {
-                    xemHoaDon(ma.trim());
-                }
+            } else if (nguon == btnXemHoaDon && maHoaDonHienTai != null) {
+                xemHoaDon(maHoaDonHienTai);
             }
         } catch (SQLException ex) {
             String thongBao = nguon == btnThanhToan
@@ -490,7 +482,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 popGoiYKhachHang.setVisible(false);
                 lblTenKhachHang.setText("Không đọc được dữ liệu khách hàng");
             } else {
-                popGoiYSanPham.setVisible(false);
                 txtTenSanPham.setText("Không đọc được dữ liệu");
             }
         }
@@ -504,7 +495,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     public void keyPressed(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.VK_ESCAPE || event.getKeyCode() == KeyEvent.VK_TAB) {
             popGoiYKhachHang.setVisible(false);
-            popGoiYSanPham.setVisible(false);
         }
     }
 
@@ -538,37 +528,27 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void timSanPham(boolean xacNhan) throws SQLException {
-        String tuKhoa = txtMaSanPham.getText().trim();
-        tuKhoaSanPham = tuKhoa;
+        String ma = txtMaSanPham.getText().trim();
+        tuKhoaSanPham = ma;
         hienThiSanPham(null);
-        if (tuKhoa.isEmpty()) {
-            popGoiYSanPham.setVisible(false);
+        if (!ma.matches("(?i)SP[0-9]{9}")) {
+            if (xacNhan && !ma.isEmpty()) {
+                txtTenSanPham.setText("Nhập đủ mã sản phẩm");
+            }
             return;
         }
-        goiYSanPham = service.goiYSanPham(tuKhoa);
-        if (goiYSanPham.isEmpty()) {
-            popGoiYSanPham.setVisible(false);
-            txtTenSanPham.setText("Không tìm thấy sản phẩm");
-            return;
+        try {
+            chonSanPham(service.timSanPham(ma), xacNhan);
+        } catch (IllegalArgumentException ex) {
+            txtTenSanPham.setText(ex.getMessage());
+            txtTenSanPham.setToolTipText(ex.getMessage());
         }
-        SanPham dauTien = goiYSanPham.get(0);
-        if (tuKhoa.equalsIgnoreCase(dauTien.getMaSanPham()) || (xacNhan && goiYSanPham.size() == 1)) {
-            chonSanPham(dauTien, xacNhan);
-            return;
-        }
-        String[] nhan = new String[goiYSanPham.size()];
-        for (int i = 0; i < nhan.length; i++) {
-            SanPham sp = goiYSanPham.get(i);
-            nhan[i] = sp.getMaSanPham() + " - " + sp.getTenSanPham();
-        }
-        napGoiY(txtMaSanPham, lstGoiYSanPham, popGoiYSanPham, nhan);
     }
 
     void napDanhMucTraCuu() {
         try {
             service.napDanhMucTraCuu();
             popGoiYKhachHang.setVisible(false);
-            popGoiYSanPham.setVisible(false);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Không tải được danh sách tra cứu. Kiểm tra kết nối cơ sở dữ liệu.",
                     "Lỗi cơ sở dữ liệu", JOptionPane.ERROR_MESSAGE);
@@ -596,7 +576,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         tuKhoaSanPham = sanPham.getMaSanPham();
         txtMaSanPham.setText(tuKhoaSanPham);
         hienThiSanPham(sanPham);
-        popGoiYSanPham.setVisible(false);
         if (chuyenO) {
             txtSoLuong.requestFocusInWindow();
         }
@@ -612,13 +591,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             if (popGoiYKhachHang.isVisible() && viTri >= 0) {
                 chonKhachHang(goiYKhachHang.get(viTri));
                 txtMaSanPham.requestFocusInWindow();
-            }
-            return;
-        }
-        if (event.getSource() == lstGoiYSanPham) {
-            int viTri = lstGoiYSanPham.getSelectedIndex();
-            if (popGoiYSanPham.isVisible() && viTri >= 0) {
-                chonSanPham(goiYSanPham.get(viTri), true);
             }
             return;
         }
@@ -720,12 +692,10 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void sauThanhToan(String ma) {
-        maHoaDonGanNhat = ma;
-        int luaChon = JOptionPane.showConfirmDialog(this, "Đã lưu hóa đơn " + ma + ". Mở hóa đơn để xem hoặc xuất tệp?",
-                "Thanh toán thành công", JOptionPane.YES_NO_OPTION);
-        if (luaChon == JOptionPane.YES_OPTION) {
-            xemHoaDon(ma);
-        }
+        maHoaDonHienTai = ma;
+        btnXemHoaDon.setEnabled(true);
+        JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn " + ma + ".",
+                "Thanh toán thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void xemHoaDon(String ma) {
@@ -741,6 +711,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void hienThiSanPham(SanPham sp) {
+        txtTenSanPham.setToolTipText(null);
         txtTenSanPham.setText(sp == null ? "" : sp.getTenSanPham());
         txtDonViTinh.setText(sp == null ? "" : sp.getDonViTinh());
         txtGiaBan.setText(sp == null ? "" : sp.getGiaBan().toPlainString());
@@ -750,7 +721,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private void xoaNhapSanPham() {
         txtMaSanPham.setText("");
         tuKhoaSanPham = "";
-        popGoiYSanPham.setVisible(false);
         txtSoLuong.setText("1");
         hienThiSanPham(null);
         txtMaSanPham.requestFocusInWindow();
