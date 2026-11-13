@@ -1,0 +1,43 @@
+package service;
+
+import java.util.ArrayList;
+
+import dao.QuanLyNhanVienDAO;
+import entity.NhanVien;
+
+public class QuanLyNhanVienService {
+	private QuanLyNhanVienDAO nhanVienDAO = new QuanLyNhanVienDAO();
+	
+	public QuanLyNhanVienService() {		
+	}
+	
+	public ArrayList<NhanVien> getAllNhanVien(){
+		return nhanVienDAO.getAllNhanVien();
+	}
+	
+	public boolean themNhanVien(NhanVien nv) {
+		if(nv == null) {
+			return false;
+		}
+		return nhanVienDAO.themNhanVien(nv);
+	}
+	
+	public String sinhMaNhanVien() {
+		return nhanVienDAO.sinhMaNhanVien();
+	}
+	public boolean capNhatNhanVien(NhanVien nv) {
+
+	    if (nv == null) {
+	        return false;
+	    }
+
+	    return nhanVienDAO.capNhatNhanVien(nv);
+	}
+	
+	public boolean xoaNhanVien(String maNV) {
+		if(maNV == null || maNV.trim().isEmpty()) {
+			return false;
+		}
+		return nhanVienDAO.xoaNhanVien(maNV);
+	}
+}

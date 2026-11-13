@@ -9,6 +9,8 @@ public class NhanVien {
 	private String soDienThoai;
 	private String diaChi;
 	private String trangThai;
+	private TaiKhoan taiKhoan;
+	
 
 	public NhanVien() {
 	}
@@ -24,6 +26,14 @@ public class NhanVien {
 		setSoDienThoai(soDienThoai);
 		setDiaChi(diaChi);
 		setTrangThai(trangThai);
+	}
+
+	public TaiKhoan getTaiKhoan() {
+		return taiKhoan;
+	}
+
+	public void setTaiKhoan(TaiKhoan taiKhoan) {
+		this.taiKhoan = taiKhoan;
 	}
 
 	public String getDiaChi() {
