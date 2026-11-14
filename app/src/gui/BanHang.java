@@ -436,8 +436,8 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 capNhatBang();
                 xoaNhapSanPham();
             } else if (nguon == btnLamMoi) {
-                capNhatBang();
-                xoaNhapSanPham();
+                service.xoaHoaDonDangLap();
+                datLaiManHinh();
             } else if (nguon == cboKhuyenMai) {
                 int viTri = cboKhuyenMai.getSelectedIndex() - 1;
                 service.chonKhuyenMai(viTri < 0 ? null : danhSachKhuyenMai.get(viTri));
@@ -675,16 +675,21 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             return;
         }
         String ma = service.thanhToan(phuongThuc, tienKhachDua, new NhanVien(maNhanVien));
+        datLaiManHinh();
+        sauThanhToan(ma);
+    }
+
+    private void datLaiManHinh() {
         txtKhachHang.setText("");
         tuKhoaKhachHang = "";
         popGoiYKhachHang.setVisible(false);
         lblTenKhachHang.setText("Chưa chọn khách hàng");
         txtTienKhachDua.setText("");
-        cboKhuyenMai.setSelectedIndex(0);
+        cboKhuyenMai.removeAllItems();
+        cboKhuyenMai.addItem("Không áp dụng");
         cboPhuongThuc.setSelectedIndex(0);
         capNhatBang();
         xoaNhapSanPham();
-        sauThanhToan(ma);
     }
 
     private void sauThanhToan(String ma) {
