@@ -73,6 +73,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JButton btnThemDong;
     private JButton btnSua;
     private JButton btnXoa;
+    private JButton btnLamMoi;
     private JComboBox<String> cboKhuyenMai;
     private JComboBox<String> cboPhuongThuc;
     private JTextField txtTienGiam;
@@ -245,15 +246,18 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         scrDongHang.setBorder(BorderFactory.createLineBorder(MAU_XANH));
         pnlDongHang.add(scrDongHang, BorderLayout.CENTER);
 
-        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 2, 8, 0));
+        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 3, 8, 0));
         btnXoa = new JButton("Xóa dòng");
         dinhDangNut(btnXoa, MAU_DO, false);
         btnSua = new JButton("Sửa số lượng");
         dinhDangNut(btnSua, MAU_XANH, false);
+        btnLamMoi = new JButton("Làm mới");
+        dinhDangNut(btnLamMoi, MAU_XANH, false);
         btnXoa.setEnabled(false);
         btnSua.setEnabled(false);
         pnlSuaDong.add(btnXoa);
         pnlSuaDong.add(btnSua);
+        pnlSuaDong.add(btnLamMoi);
         pnlDongHang.add(pnlSuaDong, BorderLayout.SOUTH);
 
         JPanel pnlThanhToan = new JPanel(new BorderLayout());
@@ -358,6 +362,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThemDong.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         cboKhuyenMai.addActionListener(this);
         cboPhuongThuc.addActionListener(this);
         txtTienKhachDua.addActionListener(this);
@@ -428,6 +433,9 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 tblDongHang.setRowSelectionInterval(viTri, viTri);
             } else if (nguon == btnXoa && tblDongHang.getSelectedRow() >= 0) {
                 service.xoaDong(tblDongHang.getSelectedRow());
+                capNhatBang();
+                xoaNhapSanPham();
+            } else if (nguon == btnLamMoi) {
                 capNhatBang();
                 xoaNhapSanPham();
             } else if (nguon == cboKhuyenMai) {
