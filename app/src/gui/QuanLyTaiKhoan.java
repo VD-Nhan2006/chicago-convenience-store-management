@@ -386,8 +386,69 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
             }
         }else if(nguon == btnThem) {
         	themTaiKhoan();
+        }else if(nguon == btnDoiMatKhau) {
+        	doiMatKhau();
         }
     }
+
+	private void doiMatKhau() {
+		Object selectedNhanVien = cboMaNhanVien.getSelectedItem();
+		if (selectedNhanVien == null) {
+	        JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần đổi mật khẩu!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+	        cboMaNhanVien.requestFocus();
+	        return;
+	    }
+		String maNV = selectedNhanVien.toString();
+		boolean daCoTaiKhoan =  false;
+		for(TaiKhoan tk : dsTaiKhoan) {
+			if(maNV.equals(tk.getNhanVien().getMaNhanVien())) {
+				daCoTaiKhoan = true;
+				break;
+			}
+		}
+		
+		if(!daCoTaiKhoan) {
+			JOptionPane.showMessageDialog(this, "Nhân viên này chưa có tài khoản! Hãy dùng nút \"Thêm\".", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+	        return;
+		}
+		
+		String matKhauMoi = new String(txtMatKhauMoi.getPassword()).trim();
+		if(matKhauMoi.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+	        txtMatKhauMoi.requestFocus();
+	        return;
+		}
+		if(matKhauMoi.length()<6) {
+			JOptionPane.showMessageDialog(this, "Mật khẩu mới phải có độ dài tối thiểu 6 ký tự!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+	        txtMatKhauMoi.requestFocus();
+	        return;
+		}
+		String matKhauHienTai = new String(txtMatKhauHienTai.getPassword()).trim();
+		if(matKhauMoi.equals(matKhauHienTai)) {
+			JOptionPane.showMessageDialog(this, "Mật khẩu mới không được trùng với mật khẩu hiện tại!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+	        txtMatKhauMoi.requestFocus();
+	        return;
+		}
+		int xacNhan = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn đổi mật khẩu cho nhân viên " + maNV + " không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+		if(xacNhan != JOptionPane.YES_OPTION) {
+			return;
+		}
+		String matKhauMaHoa;
+		try {
+			matKhauMaHoa = AESGCMUtil.maHoaMatKhau(matKhauMoi);
+		}catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Lỗi mã hóa mật khẩu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+	        return;
+		}
+		
+		if(taiKhoanService.doiMatKhau(maNV, matKhauMaHoa)) {
+			JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+	        loadData();
+	        cboMaNhanVien.setSelectedItem(maNV);
+		}else {
+			JOptionPane.showMessageDialog(this, "Đổi mật khẩu thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
 
 	private void themTaiKhoan() {
 		Object selectedNV = cboMaNhanVien.getSelectedItem();

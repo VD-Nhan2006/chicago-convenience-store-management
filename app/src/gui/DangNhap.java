@@ -16,7 +16,6 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import dao.DangNhapDAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import service.DangNhapService;
@@ -35,7 +34,7 @@ public class DangNhap extends JFrame implements ActionListener{
 	private JTextField txtMaNV;
 	private JButton btnDangNhap;
 	private JPasswordField passwordField;
-	private final DangNhapService service = new DangNhapService(new DangNhapDAO());
+	private final DangNhapService service = new DangNhapService();
 	public DangNhap() {
 		setTitle("Chicago - ĐĂNG NHẬP");
 		setSize(1280,800);
