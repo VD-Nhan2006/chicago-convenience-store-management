@@ -193,10 +193,14 @@ public class BanHangService {
                 layDongHang(), daChon, nhanVien, hoaDon.getKhachHang());
         String tienTo = "HD" + thoiDiem.format(DateTimeFormatter.ofPattern("ddMMyy"));
         String ma = thanhToanDAO.luuHoaDon(hoaDonLuu, tienTo);
+        xoaHoaDonDangLap();
+        return ma;
+    }
+
+    public void xoaHoaDonDangLap() {
         dongHang.clear();
         hoaDon.setKhachHang(null);
         hoaDon.setChuongTrinhKM(null);
-        return ma;
     }
 
     private void kiemTraSoLuongDuong(int soLuong) {

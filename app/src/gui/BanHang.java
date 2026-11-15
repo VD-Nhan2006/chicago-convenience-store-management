@@ -73,6 +73,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JButton btnThemDong;
     private JButton btnSua;
     private JButton btnXoa;
+    private JButton btnLamMoi;
     private JComboBox<String> cboKhuyenMai;
     private JComboBox<String> cboPhuongThuc;
     private JTextField txtTienGiam;
@@ -245,15 +246,18 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         scrDongHang.setBorder(BorderFactory.createLineBorder(MAU_XANH));
         pnlDongHang.add(scrDongHang, BorderLayout.CENTER);
 
-        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 2, 8, 0));
+        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 3, 8, 0));
         btnXoa = new JButton("Xóa dòng");
         dinhDangNut(btnXoa, MAU_DO, false);
         btnSua = new JButton("Sửa số lượng");
         dinhDangNut(btnSua, MAU_XANH, false);
+        btnLamMoi = new JButton("Làm mới");
+        dinhDangNut(btnLamMoi, MAU_XANH, false);
         btnXoa.setEnabled(false);
         btnSua.setEnabled(false);
         pnlSuaDong.add(btnXoa);
         pnlSuaDong.add(btnSua);
+        pnlSuaDong.add(btnLamMoi);
         pnlDongHang.add(pnlSuaDong, BorderLayout.SOUTH);
 
         JPanel pnlThanhToan = new JPanel(new BorderLayout());
@@ -358,6 +362,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThemDong.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         cboKhuyenMai.addActionListener(this);
         cboPhuongThuc.addActionListener(this);
         txtTienKhachDua.addActionListener(this);
@@ -430,6 +435,9 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 service.xoaDong(tblDongHang.getSelectedRow());
                 capNhatBang();
                 xoaNhapSanPham();
+            } else if (nguon == btnLamMoi) {
+                service.xoaHoaDonDangLap();
+                datLaiManHinh();
             } else if (nguon == cboKhuyenMai) {
                 int viTri = cboKhuyenMai.getSelectedIndex() - 1;
                 service.chonKhuyenMai(viTri < 0 ? null : danhSachKhuyenMai.get(viTri));
@@ -667,16 +675,21 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             return;
         }
         String ma = service.thanhToan(phuongThuc, tienKhachDua, new NhanVien(maNhanVien));
+        datLaiManHinh();
+        sauThanhToan(ma);
+    }
+
+    private void datLaiManHinh() {
         txtKhachHang.setText("");
         tuKhoaKhachHang = "";
         popGoiYKhachHang.setVisible(false);
         lblTenKhachHang.setText("Chưa chọn khách hàng");
         txtTienKhachDua.setText("");
-        cboKhuyenMai.setSelectedIndex(0);
+        cboKhuyenMai.removeAllItems();
+        cboKhuyenMai.addItem("Không áp dụng");
         cboPhuongThuc.setSelectedIndex(0);
         capNhatBang();
         xoaNhapSanPham();
-        sauThanhToan(ma);
     }
 
     private void sauThanhToan(String ma) {
