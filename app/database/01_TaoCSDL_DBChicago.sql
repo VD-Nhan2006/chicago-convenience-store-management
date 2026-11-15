@@ -6,6 +6,7 @@
     Chạy file này trước 02_DuLieuMau_DBChicago.sql.
 
     Mã khuyến mãi trên hóa đơn có thể để trống khi không áp dụng.
+    Tài khoản có trạng thái: Đang hoạt động hoặc Ngừng hoạt động.
 
     Cột suy ra từ cột khác trong cùng dòng, khớp getter của entity:
       SanPham.giaBan           = giaNhap + mucLoiNhuan
@@ -156,10 +157,14 @@ CREATE TABLE dbo.TaiKhoan (
     maNhanVien  VARCHAR(11)   NOT NULL,
     matKhau     NVARCHAR(255) NOT NULL,
     vaiTro      NVARCHAR(30)  NOT NULL,
+    trangThai   NVARCHAR(30)  NOT NULL,
     CONSTRAINT PK_TaiKhoan PRIMARY KEY (maNhanVien),
     CONSTRAINT FK_TaiKhoan_NhanVien FOREIGN KEY (maNhanVien) REFERENCES dbo.NhanVien (maNhanVien) ON DELETE CASCADE,
     CONSTRAINT CK_TaiKhoan_MatKhau CHECK (LEN(LTRIM(RTRIM(matKhau))) > 0),
-    CONSTRAINT CK_TaiKhoan_VaiTro CHECK (vaiTro IN (N'Nhân viên thu ngân', N'Quản lý'))
+    CONSTRAINT CK_TaiKhoan_VaiTro CHECK (vaiTro IN (N'Nhân viên thu ngân', N'Quản lý')),
+    CONSTRAINT CK_TaiKhoan_TrangThai CHECK (
+        trangThai IN (N'Đang hoạt động', N'Ngừng hoạt động')
+    )
 );
 GO
 

@@ -1,6 +1,5 @@
 package dao;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,11 +26,7 @@ public class ThanhToanDAO {
             try {
                 ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<ChuongTrinhKhuyenMai>();
                 while (rs.next()) {
-                    danhSach.add(new ChuongTrinhKhuyenMai(rs.getString("maKM"),
-                            rs.getString("tenChuongTrinh"), rs.getString("moTa"),
-                            rs.getString("loaiKhuyenMai"), new BigDecimal(rs.getString("giaTriKM")),
-                            rs.getString("ngayBatDau"), rs.getString("ngayKetThuc"),
-                            rs.getString("trangThai")));
+                    danhSach.add(QuanLyKhuyenMaiDAO.docKhuyenMai(rs));
                 }
                 return danhSach;
             } finally {
