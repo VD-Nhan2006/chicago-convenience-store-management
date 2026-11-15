@@ -2,32 +2,31 @@ package entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class HoaDon {	
+public class HoaDon {
 	private String maHoaDon;
-	private LocalDateTime ngayGioLap;
+	private String ngayGioLap;
 	private String phuongThucThanhToan;
 	private String trangThaiThanhToan;
 	private BigDecimal tienKhachDua;
 	private BigDecimal tienGiamDaLuu;
 	private BigDecimal tongThanhToanDaLuu;
-	private LocalDateTime thoiGianThanhToan;
+	private String thoiGianThanhToan;
 	private static final double VAT = 8;
 	private ArrayList<ChiTietHoaDon> listChiTietHoaDon;
 	private ChuongTrinhKhuyenMai chuongTrinhKM;
 	private NhanVien nhanVien;
 	private KhachHang khachHang;
-	
+
 	public HoaDon() {
 	}
 	public HoaDon(String maHoaDon) {
 		this.maHoaDon = maHoaDon;
 	}
-	public HoaDon(String maHoaDon, LocalDateTime ngayGioLap, String phuongThucThanhToan, String trangThaiThanhToan,
-			BigDecimal tienKhachDua, LocalDateTime thoiGianThanhToan, ArrayList<ChiTietHoaDon> listChiTietHoaDon,
+	public HoaDon(String maHoaDon, String ngayGioLap, String phuongThucThanhToan, String trangThaiThanhToan,
+			BigDecimal tienKhachDua, String thoiGianThanhToan, ArrayList<ChiTietHoaDon> listChiTietHoaDon,
 			ChuongTrinhKhuyenMai chuongTrinhKM, NhanVien nhanVien, KhachHang khachHang) {
 		this.maHoaDon = maHoaDon;
 		this.ngayGioLap = ngayGioLap;
@@ -46,10 +45,10 @@ public class HoaDon {
 	public void setMaHoaDon(String maHoaDon) {
 		this.maHoaDon = maHoaDon;
 	}
-	public LocalDateTime getNgayGioLap() {
+	public String getNgayGioLap() {
 		return ngayGioLap;
 	}
-	public void setNgayGioLap(LocalDateTime ngayGioLap) {
+	public void setNgayGioLap(String ngayGioLap) {
 		this.ngayGioLap = ngayGioLap;
 	}
 	public String getPhuongThucThanhToan() {
@@ -70,10 +69,10 @@ public class HoaDon {
 	public void setTienKhachDua(BigDecimal tienKhachDua) {
 		this.tienKhachDua = tienKhachDua;
 	}
-	public LocalDateTime getThoiGianThanhToan() {
+	public String getThoiGianThanhToan() {
 		return thoiGianThanhToan;
 	}
-	public void setThoiGianThanhToan(LocalDateTime thoiGianThanhToan) {
+	public void setThoiGianThanhToan(String thoiGianThanhToan) {
 		this.thoiGianThanhToan = thoiGianThanhToan;
 	}
 	public ArrayList<ChiTietHoaDon> getListChiTietHoaDon() {
@@ -135,21 +134,21 @@ public class HoaDon {
 		}
 		return tongTienSP;
 	}
-	
+
 	public BigDecimal tinhTienKhuyenMai(BigDecimal tongTienSP) {
 		if (tienGiamDaLuu != null) {
 			return tienGiamDaLuu;
 		}
 		BigDecimal tienKhuyenMai = BigDecimal.ZERO;
 		if(chuongTrinhKM == null||tongTienSP == null||tongTienSP.compareTo(BigDecimal.ZERO)<=0) {
-			return BigDecimal.ZERO; 
+			return BigDecimal.ZERO;
 		}
-		
+
 		BigDecimal giaTriKM = chuongTrinhKM.getGiaTriKM();
 		if(giaTriKM == null || giaTriKM.compareTo(BigDecimal.ZERO)<=0) {
 			return BigDecimal.ZERO;
 		}
-		
+
 		if("TIEN_MAT".equals(chuongTrinhKM.getLoaiKhuyenMai())) {
 			tienKhuyenMai = giaTriKM.setScale(0, RoundingMode.HALF_UP).min(tongTienSP);
 		}else if("PHAN_TRAM".equals(chuongTrinhKM.getLoaiKhuyenMai())) {
@@ -182,5 +181,10 @@ public class HoaDon {
 		this.tienGiamDaLuu = tienGiam;
 		this.tongThanhToanDaLuu = tongThanhToan;
 	}
-	
-}	
+
+	public String dinhDangNgayLap() {
+		// Chuỗi ngày giờ từ SQL Server hoặc lúc lập hóa đơn đều bắt đầu bằng yyyy-MM-dd.
+		return ngayGioLap.substring(8, 10) + "/" + ngayGioLap.substring(5, 7) + "/"
+				+ ngayGioLap.substring(0, 4) + " " + ngayGioLap.substring(11, 19);
+	}
+}

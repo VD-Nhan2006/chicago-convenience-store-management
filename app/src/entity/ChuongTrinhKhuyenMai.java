@@ -1,7 +1,6 @@
 package entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Objects;
 
 public class ChuongTrinhKhuyenMai {
@@ -10,8 +9,8 @@ public class ChuongTrinhKhuyenMai {
 	private String moTa;
 	private String loaiKhuyenMai;
 	private BigDecimal giaTriKM;
-	private LocalDate ngayBatDau;
-	private LocalDate ngayKetThuc;
+	private String ngayBatDau;
+	private String ngayKetThuc;
 	private String trangThai;
 	public ChuongTrinhKhuyenMai() {
 	}
@@ -19,7 +18,7 @@ public class ChuongTrinhKhuyenMai {
 		this.maKM = maKM;
 	}
 	public ChuongTrinhKhuyenMai(String maKM, String tenChuongTrinh, String moTa, String loaiKhuyenMai,
-			BigDecimal giaTriKM, LocalDate ngayBatDau, LocalDate ngayKetThuc, String trangThai) {
+			BigDecimal giaTriKM, String ngayBatDau, String ngayKetThuc, String trangThai) {
 		this.maKM = maKM;
 		this.tenChuongTrinh = tenChuongTrinh;
 		this.moTa = moTa;
@@ -59,16 +58,16 @@ public class ChuongTrinhKhuyenMai {
 	public void setGiaTriKM(BigDecimal giaTriKM) {
 		this.giaTriKM = giaTriKM;
 	}
-	public LocalDate getNgayBatDau() {
+	public String getNgayBatDau() {
 		return ngayBatDau;
 	}
-	public void setNgayBatDau(LocalDate ngayBatDau) {
+	public void setNgayBatDau(String ngayBatDau) {
 		this.ngayBatDau = ngayBatDau;
 	}
-	public LocalDate getNgayKetThuc() {
+	public String getNgayKetThuc() {
 		return ngayKetThuc;
 	}
-	public void setNgayKetThuc(LocalDate ngayKetThuc) {
+	public void setNgayKetThuc(String ngayKetThuc) {
 		this.ngayKetThuc = ngayKetThuc;
 	}
 	public String getTrangThai() {
