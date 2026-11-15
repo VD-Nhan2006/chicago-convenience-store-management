@@ -11,4 +11,11 @@ public class QuanLyTaiKhoanService {
 	public ArrayList<TaiKhoan> getAllTaiKhoan(){
 		return taiKhoanDAO.getAllTaiKhoan();
 	}
+	
+	public boolean themTaiKhoan(TaiKhoan tk) {
+		if(tk == null || tk.getNhanVien() == null) {
+			return false;
+		}
+		return taiKhoanDAO.themTaiKhoan(tk);
+	}
 }
