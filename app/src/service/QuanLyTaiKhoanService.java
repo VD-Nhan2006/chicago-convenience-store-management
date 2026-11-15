@@ -18,4 +18,12 @@ public class QuanLyTaiKhoanService {
 		}
 		return taiKhoanDAO.themTaiKhoan(tk);
 	}
+	
+	public boolean doiMatKhau(String maNV, String matKhauMoi) {
+	    if (maNV == null || maNV.trim().isEmpty() || matKhauMoi == null || matKhauMoi.trim().isEmpty()) {
+	        return false;
+	    }
+	    return taiKhoanDAO.doiMatKhau(maNV, matKhauMoi);
+	}
 }
+

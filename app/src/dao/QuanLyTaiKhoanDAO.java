@@ -64,4 +64,24 @@ public class QuanLyTaiKhoanDAO {
 			return false;
 		}
 	}
+	
+	public boolean doiMatKhau(String maNV, String matKhauMoi) {
+		StringBuilder sql = new StringBuilder("UPDATE dbo.TaiKhoan SET matKhau = ? WHERE maNhanVien = ?");
+		try {
+			ConnectDB.getInstance();
+			Connection con = ConnectDB.getConnection();
+			PreparedStatement prestm = con.prepareStatement(sql.toString());
+			try {
+				prestm.setString(1, matKhauMoi);
+				prestm.setString(2, maNV);
+				
+				return prestm.executeUpdate()>0;
+			}finally {
+				prestm.close();
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
