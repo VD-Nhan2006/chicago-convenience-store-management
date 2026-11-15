@@ -198,7 +198,9 @@ public class BanHangService {
     }
 
     public void xoaHoaDonDangLap() {
-        dongHang.clear();
+        while (coDongHang()) {
+            xoaDong(dongHang.size() - 1);
+        }
         hoaDon.setKhachHang(null);
         hoaDon.setChuongTrinhKM(null);
     }

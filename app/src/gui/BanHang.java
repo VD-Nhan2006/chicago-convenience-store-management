@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
 
 import dao.BanHangDAO;
@@ -55,6 +56,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private final BanHangService service;
     private JTextField txtKhachHang;
     private JList<String> lstGoiYKhachHang;
+    private final DefaultListModel<String> modelGoiYKhachHang = new DefaultListModel<String>();
     private JPopupMenu popGoiYKhachHang;
     private ArrayList<KhachHang> goiYKhachHang = new ArrayList<KhachHang>();
     private String tuKhoaKhachHang = "";
@@ -140,7 +142,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlTenKhachHang.add(lblTenKhachHang, BorderLayout.CENTER);
         pnlKhachHang.add(pnlTenKhachHang);
         pnlNhap.add(pnlKhachHang);
-        lstGoiYKhachHang = new JList<String>();
+        lstGoiYKhachHang = new JList<String>(modelGoiYKhachHang);
         popGoiYKhachHang = taoPopupGoiY(lstGoiYKhachHang);
 
         pnlNhap.add(Box.createVerticalStrut(12));
@@ -520,7 +522,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             KhachHang kh = goiYKhachHang.get(i);
             nhan[i] = kh.getMaKhachHang() + " - " + kh.getHo() + " " + kh.getTen() + " - " + kh.getSoDienThoai();
         }
-        napGoiY(txtKhachHang, lstGoiYKhachHang, popGoiYKhachHang, nhan);
+        napGoiYKhachHang(nhan);
     }
 
     private void timSanPham(boolean xacNhan) throws SQLException {
@@ -551,12 +553,17 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         }
     }
 
-    private void napGoiY(JTextField oNhap, JList<String> danhSach, JPopupMenu popup, String[] nhan) {
-        danhSach.clearSelection();
-        danhSach.setListData(nhan);
-        popup.setPopupSize(460, 23 * Math.min(nhan.length, 3) + 2);
-        if (oNhap.isShowing() && !popup.isVisible()) {
-            popup.show(oNhap, 0, oNhap.getHeight());
+    private void napGoiYKhachHang(String[] nhan) {
+        popGoiYKhachHang.setVisible(false);
+        while (modelGoiYKhachHang.getSize() > 0) {
+            modelGoiYKhachHang.removeElement(modelGoiYKhachHang.getElementAt(0));
+        }
+        for (String dong : nhan) {
+            modelGoiYKhachHang.addElement(dong);
+        }
+        popGoiYKhachHang.setPopupSize(460, 23 * Math.min(nhan.length, 3) + 2);
+        if (txtKhachHang.isShowing()) {
+            popGoiYKhachHang.show(txtKhachHang, 0, txtKhachHang.getHeight());
         }
     }
 

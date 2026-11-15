@@ -2,9 +2,8 @@ package service;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 
@@ -36,7 +35,7 @@ public class HoaDonService {
     }
 
     public static void xuatHoaDonTxt(HoaDon hd, File tep) throws IOException {
-        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tep), "UTF-8"));
+        BufferedWriter out = new BufferedWriter(new FileWriter(tep));
         try {
             ghiDong(out, "CỬA HÀNG TIỆN LỢI CHICAGO");
             ghiDong(out, "HÓA ĐƠN BÁN HÀNG");
