@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,37 +17,34 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
-import dao.HoaDonDAO;
-import entity.HoaDon;
+import dao.ThongKeDAO;
 
 public class Dashboard extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    // Bảng màu
     private final Color MAU_NEN    = new Color(250, 247, 240);
     private final Color MAU_XANH   = new Color(23, 52, 81);
     private final Color MAU_DO     = new Color(239, 77, 59);
     private final Color MAU_VIEN   = new Color(23, 52, 81);
     private final Color MAU_XAM    = new Color(230, 237, 245);
 
-    // Card labels
     private JLabel lblDoanhThu;
     private JLabel lblSoHoaDon;
     private JLabel lblTienGiam;
     private JLabel lblSanPham;
-
-    // Bảng hóa đơn
+    private JLabel lblPhu;
     private JTable tblHoaDon;
     private DefaultTableModel tableModel;
 
-    private HoaDonDAO dao = new HoaDonDAO();
+    private ThongKeDAO dao = new ThongKeDAO();
     private final DateTimeFormatter FMT_NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Dashboard() {
@@ -55,9 +55,15 @@ public class Dashboard extends JPanel {
         taoTieuDe();
         taoNoiDung();
         taiLai();
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                taiLai();
+            }
+        });
     }
 
-    // ── Tiêu đề ──────────────────────────────────────────────────────────────
     private void taoTieuDe() {
         JPanel pnl = new JPanel();
         pnl.setLayout(new BoxLayout(pnl, BoxLayout.Y_AXIS));
@@ -68,7 +74,7 @@ public class Dashboard extends JPanel {
         lblTieuDe.setForeground(MAU_XANH);
 
         String homNay = LocalDate.now().format(FMT_NGAY);
-        JLabel lblPhu = new JLabel("Số liệu ngày " + homNay + ", tính hóa đơn đã thanh toán");
+        lblPhu = new JLabel("Số liệu ngày " + homNay + ", tính hóa đơn đã thanh toán");
         lblPhu.setFont(new Font("Arial", Font.PLAIN, 13));
         lblPhu.setForeground(MAU_XANH);
 
@@ -79,7 +85,6 @@ public class Dashboard extends JPanel {
         add(pnl, BorderLayout.NORTH);
     }
 
-    // ── Nội dung chính ───────────────────────────────────────────────────────
     private void taoNoiDung() {
         JPanel pnlCenter = new JPanel(new BorderLayout(0, 12));
         pnlCenter.setBackground(MAU_NEN);
@@ -88,7 +93,6 @@ public class Dashboard extends JPanel {
         add(pnlCenter, BorderLayout.CENTER);
     }
 
-    // ── 4 thẻ thống kê ───────────────────────────────────────────────────────
     private JPanel taoCacTheThongKe() {
         JPanel pnl = new JPanel(new GridLayout(1, 4, 12, 0));
         pnl.setBackground(MAU_NEN);
@@ -127,7 +131,6 @@ public class Dashboard extends JPanel {
         return pnl;
     }
 
-    // ── Bảng hóa đơn ─────────────────────────────────────────────────────────
     private JScrollPane taoBangHoaDon() {
         String[] tieuDe = {
             "Mã HD", "Khách hàng", "Nhân viên", "Thanh toán", "Phương thức"
@@ -159,48 +162,37 @@ public class Dashboard extends JPanel {
         return scroll;
     }
 
-    // ── Tải dữ liệu ──────────────────────────────────────────────────────────
     public void taiLai() {
+        LocalDate homNay = LocalDate.now();
+
+        ArrayList<ThongKeDAO.DongHoaDon> dsHD;
+        ThongKeDAO.TongHop tongHop;
+        try {
+            dsHD = dao.layHoaDon(homNay, homNay);
+            tongHop = dao.tongHop(homNay, homNay);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        lblPhu.setText("Số liệu ngày " + homNay.format(FMT_NGAY) + ", tính hóa đơn đã thanh toán");
+
         tableModel.setRowCount(0);
-
-        String homNay = LocalDate.now().format(FMT_NGAY);
-        ArrayList<HoaDon> dsHD = dao.getDanhSach(homNay, homNay);
-
-        BigDecimal tongDoanhThu = BigDecimal.ZERO;
-        BigDecimal tongTienGiam = BigDecimal.ZERO;
-
-        for (HoaDon hd : dsHD) {
-            BigDecimal tongSP  = hd.tinhTongTienSP();
-            BigDecimal tienKM  = hd.tinhTienKhuyenMai(tongSP);
-            BigDecimal thanhToan = hd.tinhTongTienThanhToan();
-
-            tongDoanhThu = tongDoanhThu.add(thanhToan);
-            tongTienGiam = tongTienGiam.add(tienKM);
-
-            String tenKH = "";
-            if (hd.getKhachHang() != null) {
-                tenKH = hd.getKhachHang().getHo() + " " + hd.getKhachHang().getTen();
-            }
-            String tenNV = "";
-            if (hd.getNhanVien() != null) {
-                tenNV = hd.getNhanVien().getHo() + " " + hd.getNhanVien().getTen();
-            }
-
+        for (ThongKeDAO.DongHoaDon hd : dsHD) {
             tableModel.addRow(new Object[] {
                 hd.getMaHoaDon(),
-                tenKH.trim(),
-                tenNV.trim(),
-                dinhDangTien(thanhToan),
+                hd.getTenKhachHang(),
+                hd.getTenNhanVien(),
+                dinhDangTien(hd.getTongThanhToan()),
                 hd.getPhuongThucThanhToan()
             });
         }
 
-        int soSP = dao.demSanPhamBanHomNay();
-
-        lblDoanhThu.setText(dinhDangTien(tongDoanhThu));
-        lblSoHoaDon.setText(String.valueOf(dsHD.size()));
-        lblTienGiam.setText(dinhDangTien(tongTienGiam));
-        lblSanPham.setText(String.valueOf(soSP));
+        lblDoanhThu.setText(dinhDangTien(tongHop.getDoanhThu()));
+        lblSoHoaDon.setText(String.valueOf(tongHop.getSoHoaDon()));
+        lblTienGiam.setText(dinhDangTien(tongHop.getTienGiam()));
+        lblSanPham.setText(String.valueOf(tongHop.getSoSanPham()));
     }
 
     private String dinhDangTien(BigDecimal so) {

@@ -2,18 +2,19 @@ package entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class HoaDon {	
 	private String maHoaDon;
-	private String ngayGioLap;
+	private LocalDateTime ngayGioLap;
 	private String phuongThucThanhToan;
 	private String trangThaiThanhToan;
 	private BigDecimal tienKhachDua;
 	private BigDecimal tienGiamDaLuu;
 	private BigDecimal tongThanhToanDaLuu;
-	private String thoiGianThanhToan;
+	private LocalDateTime thoiGianThanhToan;
 	private static final double VAT = 8;
 	private ArrayList<ChiTietHoaDon> listChiTietHoaDon;
 	private ChuongTrinhKhuyenMai chuongTrinhKM;
@@ -25,8 +26,8 @@ public class HoaDon {
 	public HoaDon(String maHoaDon) {
 		setMaHoaDon(maHoaDon);
 	}
-	public HoaDon(String maHoaDon, String ngayGioLap, String phuongThucThanhToan, String trangThaiThanhToan,
-			BigDecimal tienKhachDua, String thoiGianThanhToan, ArrayList<ChiTietHoaDon> listChiTietHoaDon,
+	public HoaDon(String maHoaDon, LocalDateTime ngayGioLap, String phuongThucThanhToan, String trangThaiThanhToan,
+			BigDecimal tienKhachDua, LocalDateTime thoiGianThanhToan, ArrayList<ChiTietHoaDon> listChiTietHoaDon,
 			ChuongTrinhKhuyenMai chuongTrinhKM, NhanVien nhanVien, KhachHang khachHang) {
 		setMaHoaDon(maHoaDon);
 		setNgayGioLap(ngayGioLap);
@@ -50,14 +51,14 @@ public class HoaDon {
 		RangBuoc.maDinhDanh(maHoaDon, "HD", 4, 9999, "Mã hóa đơn");
 		this.maHoaDon = maHoaDon;
 	}
-	public String getNgayGioLap() {
+	public LocalDateTime getNgayGioLap() {
 		return ngayGioLap;
 	}
-	public void setNgayGioLap(String ngayGioLap) {
+	public void setNgayGioLap(LocalDateTime ngayGioLap) {
 		if (ngayGioLap == null) {
 			throw new IllegalArgumentException("Ngày giờ lập không được để trống.");
 		}
-		if (thoiGianThanhToan != null && somHon(thoiGianThanhToan, ngayGioLap)) {
+		if (thoiGianThanhToan != null && thoiGianThanhToan.isBefore(ngayGioLap)) {
 			throw new IllegalArgumentException("Thời gian thanh toán không được sớm hơn ngày giờ lập.");
 		}
 		this.ngayGioLap = ngayGioLap;
@@ -83,14 +84,14 @@ public class HoaDon {
 		RangBuoc.soNguyenKhongAm(tienKhachDua, "Tiền khách đưa");
 		this.tienKhachDua = tienKhachDua;
 	}
-	public String getThoiGianThanhToan() {
+	public LocalDateTime getThoiGianThanhToan() {
 		return thoiGianThanhToan;
 	}
-	public void setThoiGianThanhToan(String thoiGianThanhToan) {
+	public void setThoiGianThanhToan(LocalDateTime thoiGianThanhToan) {
 		if (thoiGianThanhToan == null) {
 			throw new IllegalArgumentException("Thời gian thanh toán không được để trống.");
 		}
-		if (ngayGioLap != null && somHon(thoiGianThanhToan, ngayGioLap)) {
+		if (ngayGioLap != null && thoiGianThanhToan.isBefore(ngayGioLap)) {
 			throw new IllegalArgumentException("Thời gian thanh toán không được sớm hơn ngày giờ lập.");
 		}
 		this.thoiGianThanhToan = thoiGianThanhToan;
@@ -223,27 +224,5 @@ public class HoaDon {
 		this.tienGiamDaLuu = tienGiam;
 		this.tongThanhToanDaLuu = tongThanhToan;
 	}
-
-	private boolean somHon(String moc1, String moc2) {
-		int ngay1 = docNgay(moc1);
-		int ngay2 = docNgay(moc2);
-		if (ngay1 != ngay2) {
-			return ngay1 < ngay2;
-		}
-		return docGio(moc1) < docGio(moc2);
-	}
-
-	private int docNgay(String moc) {
-		return Integer.parseInt(moc.substring(0, 4) + moc.substring(5, 7) + moc.substring(8, 10));
-	}
-
-	private int docGio(String moc) {
-		return Integer.parseInt(moc.substring(11, 13) + moc.substring(14, 16) + moc.substring(17, 19));
-	}
-
-	public String dinhDangNgayLap() {
-		// Chuỗi ngày giờ từ SQL Server hoặc lúc lập hóa đơn đều bắt đầu bằng yyyy-MM-dd.
-		return ngayGioLap.substring(8, 10) + "/" + ngayGioLap.substring(5, 7) + "/"
-				+ ngayGioLap.substring(0, 4) + " " + ngayGioLap.substring(11, 19);
-	}
-}
+	
+}	

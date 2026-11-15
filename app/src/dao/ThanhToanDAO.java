@@ -70,7 +70,6 @@ public class ThanhToanDAO {
             try {
                 con.setAutoCommit(true);
             } catch (SQLException loiKetNoi) {
-                // Hóa đơn đã commit hoặc rollback. Đóng kết nối để lần sau dùng kết nối mới.
                 ConnectDB.getInstance().disconnect();
             }
         }

@@ -47,6 +47,7 @@ public class FrmChinh extends JFrame implements ActionListener{
 	private Map<JButton, String> danhSachMenu;
 	private JButton btnDashboard;
 	private JButton btnBanHang;
+	private BanHang pnlBanHang;
 	private JButton btnTimKiemHoaDon;
 	private JButton btnQuanLyKhachHang;
 	private JButton btnQuanLySanPham;
@@ -55,6 +56,9 @@ public class FrmChinh extends JFrame implements ActionListener{
 	private JButton btnQuanLyTaiKhoan;
 	private JButton btnQuanLyKhuyenMai;
 	private JButton btnThongKe;
+	private QuanLySanPham pnlQuanLySanPham;
+	private QuanLyLoaiSanPham pnlQuanLyLoaiSanPham;
+	private QuanLyKhuyenMai pnlQuanLyKhuyenMai;
 	private JButton btnDangChon;
 	private JPanel pnlThongTinTaiKhoan;
 	private JLabel lblTitle;
@@ -331,7 +335,15 @@ public class FrmChinh extends JFrame implements ActionListener{
     
     private void taoCardManHinh() {
     	pnlNoiDung.add(new QuanLyNhanVien(), "NHAN_VIEN");
-        pnlNoiDung.add(new BanHang(), "BAN_HANG");
+        pnlBanHang = new BanHang();
+        pnlNoiDung.add(pnlBanHang, "BAN_HANG");
+        pnlNoiDung.add(new QuanLyTaiKhoan(), "TAI_KHOAN");
+        pnlQuanLySanPham = new QuanLySanPham();
+        pnlNoiDung.add(pnlQuanLySanPham, "SAN_PHAM");
+        pnlQuanLyLoaiSanPham = new QuanLyLoaiSanPham();
+        pnlNoiDung.add(pnlQuanLyLoaiSanPham, "LOAI_SAN_PHAM");
+        pnlQuanLyKhuyenMai = new QuanLyKhuyenMai();
+        pnlNoiDung.add(pnlQuanLyKhuyenMai, "KHUYEN_MAI");
         pnlNoiDung.add(new QuanLyKhachHang(), "KHACH_HANG");
         pnlNoiDung.add(new TimKiemHoaDon(), "TIM_KIEM_HOA_DON");
         pnlNoiDung.add(new Dashboard(), "DASHBOARD");
@@ -359,6 +371,15 @@ public class FrmChinh extends JFrame implements ActionListener{
 		String maManHinh = danhSachMenu.get(btn);
 		if(maManHinh != null) {
 			cardLayout.show(pnlNoiDung, maManHinh);
+			if (btn == btnBanHang) {
+				pnlBanHang.napDanhMucTraCuu();
+			} else if (btn == btnQuanLySanPham) {
+				pnlQuanLySanPham.taiLaiDuLieu();
+			} else if (btn == btnQuanLyLoaiSanPham) {
+				pnlQuanLyLoaiSanPham.taiLaiDuLieu();
+			} else if (btn == btnQuanLyKhuyenMai) {
+				pnlQuanLyKhuyenMai.taiLaiDuLieu();
+			}
 		}
 		
 	}

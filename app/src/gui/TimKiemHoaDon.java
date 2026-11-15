@@ -7,10 +7,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -31,8 +35,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import dao.HoaDonDAO;
-import entity.ChiTietHoaDon;
+import dao.TimKiemHoaDonDAO;
 import entity.ChuongTrinhKhuyenMai;
 import entity.HoaDon;
 
@@ -46,20 +49,15 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
     private static final Color SELECT = new Color(230, 237, 245);
 
     private static final DateTimeFormatter FMT_DT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final DateTimeFormatter FMT_D  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FMT_D  = DateTimeFormatter.ofPattern("dd/MM/uuuu")
+            .withResolverStyle(ResolverStyle.STRICT);
 
-    private final HoaDonDAO dao = new HoaDonDAO();
+    private final TimKiemHoaDonDAO dao = new TimKiemHoaDonDAO();
     private ArrayList<HoaDon> dsHienTai = new ArrayList<HoaDon>();
-
-    // Tìm kiếm
     private JTextField txtMaHD, txtTuNgay, txtDenNgay, txtKhachHang;
     private JButton btnTim, btnLamMoi;
-
-    // Bảng hóa đơn
     private JTable tblHoaDon;
     private DefaultTableModel modelHoaDon;
-
-    // Panel chi tiết bên phải
     private JLabel valMaHD, valKhachHang, valNhanVien;
     private JLabel valTongTien, valKhuyenMai, valTienGiam, valThanhToan, valKhachDuaTra;
     private JButton btnInHoaDon;
@@ -73,9 +71,14 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         add(taoNoiDung(),     BorderLayout.CENTER);
 
         taiLai();
-    }
 
-    // =================== Tạo giao diện ===================
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                lamMoi();
+            }
+        });
+    }
 
     private JPanel taoTieuDeVaTim() {
         JPanel pnl = new JPanel(new BorderLayout(0, 10));
@@ -138,7 +141,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
     }
 
     private JScrollPane taoBang() {
-        String[] cols = { "Mã HD", "Thời điểm", "Khách hàng", "Tổng thanh toán", "Phương thức" };
+        String[] cols = { "Mã HD", "Thời điểm thanh toán", "Khách hàng", "Tổng thanh toán", "Phương thức" };
         modelHoaDon = new DefaultTableModel(cols, 0) {
             private static final long serialVersionUID = 1L;
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -169,7 +172,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         });
 
         tblHoaDon.getColumnModel().getColumn(0).setPreferredWidth(110);
-        tblHoaDon.getColumnModel().getColumn(1).setPreferredWidth(130);
+        tblHoaDon.getColumnModel().getColumn(1).setPreferredWidth(150);
         tblHoaDon.getColumnModel().getColumn(2).setPreferredWidth(160);
         tblHoaDon.getColumnModel().getColumn(3).setPreferredWidth(120);
         tblHoaDon.getColumnModel().getColumn(4).setPreferredWidth(110);
@@ -248,8 +251,6 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         return pnl;
     }
 
-    // =================== Hàm tạo giao diện nhỏ ===================
-
     private JTextField newField(int w) {
         JTextField tf = new JTextField();
         tf.setPreferredSize(new Dimension(w, 32));
@@ -300,10 +301,12 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         return btn;
     }
 
-    // =================== Xử lý dữ liệu ===================
-
     private void taiLai() {
-        hienThi(dao.getAll());
+        try {
+            hienThi(dao.timKiem("", null, null, ""));
+        } catch (SQLException e) {
+            baoLoiCsdl(e);
+        }
     }
 
     private void lamMoi() {
@@ -322,17 +325,35 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         String denNg = txtDenNgay.getText().trim();
         String tenKH = txtKhachHang.getText().trim();
 
-        if (!tuNg.isEmpty() && !hopLeNgay(tuNg)) {
+        LocalDate tuNgay = null;
+        LocalDate denNgay = null;
+        if (!tuNg.isEmpty()) {
+            tuNgay = docNgay(tuNg);
+            if (tuNgay == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Từ ngày không hợp lệ. Định dạng: dd/MM/yyyy", "Lỗi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        if (!denNg.isEmpty()) {
+            denNgay = docNgay(denNg);
+            if (denNgay == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Đến ngày không hợp lệ. Định dạng: dd/MM/yyyy", "Lỗi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        if (tuNgay != null && denNgay != null && tuNgay.isAfter(denNgay)) {
             JOptionPane.showMessageDialog(this,
-                    "Từ ngày không hợp lệ. Định dạng: dd/MM/yyyy", "Lỗi", JOptionPane.WARNING_MESSAGE);
+                    "Từ ngày không được sau đến ngày.", "Lỗi", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (!denNg.isEmpty() && !hopLeNgay(denNg)) {
-            JOptionPane.showMessageDialog(this,
-                    "Đến ngày không hợp lệ. Định dạng: dd/MM/yyyy", "Lỗi", JOptionPane.WARNING_MESSAGE);
+        try {
+            hienThi(dao.timKiem(maHD, tuNgay, denNgay, tenKH));
+        } catch (SQLException e) {
+            baoLoiCsdl(e);
             return;
         }
-        hienThi(dao.timKiem(maHD, tuNg, denNg, tenKH));
         xoaChiTiet();
         tblHoaDon.clearSelection();
     }
@@ -343,15 +364,11 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         for (HoaDon hd : ds) {
             String tenKH = hd.getKhachHang() != null
                     ? (hd.getKhachHang().getHo() + " " + hd.getKhachHang().getTen()).trim() : "";
-            String thoiDiem = hd.getNgayGioLap() != null
-                    ? hd.getNgayGioLap().format(FMT_DT) : "";
-            // Tính tổng thanh toán (dùng method có sẵn trong HoaDon)
-            // Cần load chi tiết trước — hiển thị tienKhachDua cho bảng (xấp xỉ)
-            String thanhToan = hd.getTienKhachDua() != null
-                    ? dinhDangTien(hd.getTienKhachDua()) : "";
+            String thoiDiem = hd.getThoiGianThanhToan() != null
+                    ? hd.getThoiGianThanhToan().format(FMT_DT) : "";
             modelHoaDon.addRow(new Object[]{
                 hd.getMaHoaDon(), thoiDiem, tenKH,
-                thanhToan,
+                dinhDangTien(hd.tinhTongTienThanhToan()),
                 hd.getPhuongThucThanhToan()
             });
         }
@@ -359,7 +376,18 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
 
     private void hienThiChiTiet(int row) {
         if (row < 0 || row >= dsHienTai.size()) return;
-        HoaDon hd = dsHienTai.get(row);
+        HoaDon hd;
+        try {
+            hd = dao.layChiTiet(dsHienTai.get(row).getMaHoaDon());
+        } catch (SQLException e) {
+            baoLoiCsdl(e);
+            return;
+        }
+        if (hd == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Hóa đơn không còn tồn tại.", "Lỗi", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         valMaHD.setText(hd.getMaHoaDon());
 
@@ -370,10 +398,6 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         String tenNV = hd.getNhanVien() != null
                 ? (hd.getNhanVien().getHo() + " " + hd.getNhanVien().getTen()).trim() : "—";
         valNhanVien.setText(tenNV);
-
-        // Load chi tiết rồi set vào HoaDon để dùng method tính tiền
-        ArrayList<ChiTietHoaDon> ctds = dao.getChiTiet(hd.getMaHoaDon());
-        hd.setListChiTietHoaDon(ctds);
 
         BigDecimal tongTienSP   = hd.tinhTongTienSP();
         BigDecimal tienKM       = hd.tinhTienKhuyenMai(tongTienSP);
@@ -414,9 +438,14 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         btnInHoaDon.setEnabled(false);
     }
 
-    private boolean hopLeNgay(String s) {
-        try { LocalDate.parse(s, FMT_D); return true; }
-        catch (DateTimeParseException e) { return false; }
+    private LocalDate docNgay(String s) {
+        try { return LocalDate.parse(s, FMT_D); }
+        catch (DateTimeParseException e) { return null; }
+    }
+
+    private void baoLoiCsdl(SQLException e) {
+        JOptionPane.showMessageDialog(this,
+                "Lỗi cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
 
     private static String dinhDangTien(BigDecimal so) {

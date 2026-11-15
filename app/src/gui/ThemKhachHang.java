@@ -11,6 +11,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.sql.SQLException;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -24,11 +26,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import dao.KhachHangDAO;
-import entity.KhachHang;
 
 public class ThemKhachHang extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String MA_TU_DONG = "Tự động tạo";
 
     private KhachHangDAO dao = new KhachHangDAO();
     private Runnable onDong;
@@ -123,7 +126,7 @@ public class ThemKhachHang extends JPanel implements ActionListener {
         them(pnlForm, c, 1, 1, 1, taoNhan("Họ tên *"));
         them(pnlForm, c, 2, 0, 1, chinhO(txtMa));
         them(pnlForm, c, 2, 1, 1, chinhO(txtHoTen));
-        them(pnlForm, c, 3, 0, 1, taoGhiChu("Mã do hệ thống tạo, không thể chỉnh sửa."));
+        them(pnlForm, c, 3, 0, 1, taoGhiChu("Mã do hệ thống tạo khi lưu, không thể chỉnh sửa."));
 
         them(pnlForm, c, 4, 0, 1, taoNhan("Giới tính *"));
         them(pnlForm, c, 4, 1, 1, taoNhan("Số điện thoại *"));
@@ -201,7 +204,7 @@ public class ThemKhachHang extends JPanel implements ActionListener {
     // ===== Xử lý =====
 
     public void chuanBi() {
-        txtMa.setText(dao.phatSinhMa());
+        txtMa.setText(MA_TU_DONG);
         txtHoTen.setText("");
         cboGioiTinh.setSelectedIndex(0);
         txtSoDienThoai.setText("");
@@ -229,16 +232,17 @@ public class ThemKhachHang extends JPanel implements ActionListener {
             return;
         }
         String[] ht = QuanLyKhachHang.tachHoTen(txtHoTen.getText());
-        KhachHang kh = new KhachHang(
-                txtMa.getText(), ht[0], ht[1],
-                (String) cboGioiTinh.getSelectedItem(),
-                txtSoDienThoai.getText().trim(),
-                QuanLyKhachHang.diaChiLuu(txtDiaChi.getText()));
-        if (dao.them(kh)) {
-            JOptionPane.showMessageDialog(this, "Đã thêm khách hàng " + kh.getMaKhachHang() + ".");
+        try {
+            String ma = dao.themMoi(ht[0], ht[1],
+                    (String) cboGioiTinh.getSelectedItem(),
+                    txtSoDienThoai.getText().trim(),
+                    QuanLyKhachHang.diaChiLuu(txtDiaChi.getText()));
+            JOptionPane.showMessageDialog(this, "Đã thêm khách hàng " + ma + ".");
             onDong.run();
-        } else {
-            JOptionPane.showMessageDialog(this, "Không thể thêm khách hàng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Dữ liệu chưa hợp lệ", JOptionPane.WARNING_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -22,18 +22,14 @@ public class QuanLyKhuyenMaiDAO {
 				PreparedStatement statement = connection.prepareStatement(sql);
 				ResultSet result = statement.executeQuery()) {
 			while (result.next()) {
-				danhSach.add(docKhuyenMai(result));
+				danhSach.add(new ChuongTrinhKhuyenMai(result.getString("maKM"),
+						result.getString("tenChuongTrinh"), result.getString("moTa"),
+						result.getString("loaiKhuyenMai"), result.getBigDecimal("giaTriKM"),
+						result.getDate("ngayBatDau").toLocalDate(), result.getDate("ngayKetThuc").toLocalDate(),
+						result.getString("trangThai")));
 			}
 		}
 		return danhSach;
-	}
-
-	static ChuongTrinhKhuyenMai docKhuyenMai(ResultSet result) throws SQLException {
-		return new ChuongTrinhKhuyenMai(result.getString("maKM"),
-				result.getString("tenChuongTrinh"), result.getString("moTa"),
-				result.getString("loaiKhuyenMai"), result.getBigDecimal("giaTriKM"),
-				result.getDate("ngayBatDau").toLocalDate(), result.getDate("ngayKetThuc").toLocalDate(),
-				result.getString("trangThai"));
 	}
 
 	public String sinhMa() throws SQLException {
