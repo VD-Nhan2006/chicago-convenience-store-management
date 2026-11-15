@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -41,5 +42,26 @@ public class QuanLyTaiKhoanDAO {
 			e.printStackTrace();
 		}
 		return dsTaiKhoan;
+	}
+	
+	public boolean themTaiKhoan(TaiKhoan tk) {
+		StringBuilder sql = new StringBuilder("INSERT INTO dbo.TaiKhoan (maNhanVien, matKhau, vaiTro, trangThai) VALUES (?, ?, ?, ?)");
+		try {
+			ConnectDB.getInstance();
+			Connection con = ConnectDB.getConnection();
+			PreparedStatement statement = con.prepareStatement(sql.toString());
+			try {
+				statement.setString(1, tk.getNhanVien().getMaNhanVien());
+				statement.setString(2, tk.getMatKhau());
+				statement.setString(3, tk.getVaiTro().getTenHienThi());
+				statement.setString(4, tk.getTrangThai());
+				return statement.executeUpdate() > 0;
+			}finally {
+				statement.close();
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
