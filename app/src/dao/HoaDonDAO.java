@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,13 +44,16 @@ public class HoaDonDAO {
                 if (maKM != null) {
                     km = new ChuongTrinhKhuyenMai(maKM);
                     km.setLoaiKhuyenMai(rs.getString("loaiKhuyenMai"));
-                    km.setGiaTriKM(rs.getBigDecimal("giaTriKM"));
+                    km.setGiaTriKM(new BigDecimal(rs.getString("giaTriKM")));
                 }
-                hoaDon = new HoaDon(ma, rs.getTimestamp("ngayGioLap").toLocalDateTime(),
+                hoaDon = new HoaDon(ma, rs.getString("ngayGioLap"),
                         rs.getString("phuongThucThanhToan"), rs.getString("trangThaiThanhToan"),
-                        rs.getBigDecimal("tienKhachDua"), rs.getTimestamp("thoiGianThanhToan").toLocalDateTime(),
+                        new BigDecimal(rs.getString("tienKhachDua")), rs.getString("thoiGianThanhToan"),
                         null, km, nv, kh);
-                hoaDon.setSoTienDaLuu(rs.getBigDecimal("tienDuocGiam"), rs.getBigDecimal("tongThanhToan"));
+                String tienGiam = rs.getString("tienDuocGiam");
+                String tongThanhToan = rs.getString("tongThanhToan");
+                hoaDon.setSoTienDaLuu(tienGiam == null ? null : new BigDecimal(tienGiam),
+                        tongThanhToan == null ? null : new BigDecimal(tongThanhToan));
             } finally {
                 rs.close();
             }
@@ -74,7 +78,8 @@ public class HoaDonDAO {
                     SanPham sp = new SanPham(rs.getString("maSanPham"));
                     sp.setTenSanPham(rs.getString("tenSanPham"));
                     sp.setDonViTinh(rs.getString("donViTinh"));
-                    dongHang.add(new ChiTietHoaDon(sp, rs.getInt("soLuong"), rs.getBigDecimal("giaBan")));
+                    dongHang.add(new ChiTietHoaDon(sp, rs.getInt("soLuong"),
+                            new BigDecimal(rs.getString("giaBan"))));
                 }
                 return dongHang;
             } finally {

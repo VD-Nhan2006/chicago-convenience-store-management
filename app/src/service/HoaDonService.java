@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 
 import dao.HoaDonDAO;
 import entity.ChiTietHoaDon;
@@ -39,16 +38,16 @@ public class HoaDonService {
         try {
             ghiDong(out, "CỬA HÀNG TIỆN LỢI CHICAGO");
             ghiDong(out, "HÓA ĐƠN BÁN HÀNG");
-            out.newLine();
+            out.write("\r\n");
             ghiDong(out, "Mã hóa đơn: " + hd.getMaHoaDon());
-            ghiDong(out, "Ngày lập: " + hd.getNgayGioLap().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            ghiDong(out, "Ngày lập: " + hd.dinhDangNgayLap());
             ghiDong(out, "Nhân viên: " + hd.getNhanVien().getHo() + " " + hd.getNhanVien().getTen()
                     + " (" + hd.getNhanVien().getMaNhanVien() + ")");
             ghiDong(out, "Khách hàng: " + hd.getKhachHang().getHo() + " " + hd.getKhachHang().getTen());
             ghiDong(out, "SĐT khách hàng: " + hd.getKhachHang().getSoDienThoai());
             ghiDong(out, "Phương thức: " + hd.getPhuongThucThanhToan());
             ghiDong(out, "Trạng thái: " + hd.getTrangThaiThanhToan());
-            out.newLine();
+            out.write("\r\n");
             ghiDong(out, "STT | Mã SP | Tên sản phẩm | ĐVT | SL | Đơn giá (đ) | Thành tiền (đ)");
             int stt = 1;
             long tongSoLuong = 0;
@@ -60,7 +59,7 @@ public class HoaDonService {
                 stt++;
                 tongSoLuong += dong.getSoLuong();
             }
-            out.newLine();
+            out.write("\r\n");
             ghiDong(out, "Tổng số lượng: " + tongSoLuong);
             ghiDong(out, "Tổng tiền hàng: " + hd.tinhTongTienSP().toPlainString() + " đ");
             ghiDong(out, "Tiền được giảm: " + hd.tinhTienKhuyenMai(hd.tinhTongTienSP()).toPlainString() + " đ");
@@ -74,6 +73,6 @@ public class HoaDonService {
 
     private static void ghiDong(BufferedWriter out, String noiDung) throws IOException {
         out.write(noiDung);
-        out.newLine();
+        out.write("\r\n");
     }
 }

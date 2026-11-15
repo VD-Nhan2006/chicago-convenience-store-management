@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -86,7 +87,7 @@ public class BanHangDAO {
         loai.setMaLoaiSanPham(result.getString("maLoaiSanPham"));
         return new SanPham(result.getString("maSanPham"), result.getString("tenSanPham"),
                 result.getString("donViTinh"), result.getInt("soLuongTon"),
-                result.getBigDecimal("giaNhap"), result.getBigDecimal("mucLoiNhuan"),
+                new BigDecimal(result.getString("giaNhap")), new BigDecimal(result.getString("mucLoiNhuan")),
                 result.getString("trangThai"), loai);
     }
 }
