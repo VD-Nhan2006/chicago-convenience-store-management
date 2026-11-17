@@ -1,9 +1,11 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import connectDB.ConnectDB;
@@ -14,14 +16,15 @@ import entity.HoaDon;
 public class ThanhToanDAO {
     private static final String HOAT_DONG = "Đang hoạt động";
 
-    public ArrayList<ChuongTrinhKhuyenMai> layKhuyenMai(String ngay) throws SQLException {
+    public ArrayList<ChuongTrinhKhuyenMai> layKhuyenMai(LocalDate ngay) throws SQLException {
         String sql = "SELECT * FROM dbo.ChuongTrinhKhuyenMai WHERE trangThai = ? "
                 + "AND ngayBatDau <= ? AND ngayKetThuc >= ? ORDER BY tenChuongTrinh, maKM";
         PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
         try {
             stmt.setString(1, HOAT_DONG);
-            stmt.setString(2, ngay);
-            stmt.setString(3, ngay);
+            Date ngaySql = Date.valueOf(ngay);
+            stmt.setDate(2, ngaySql);
+            stmt.setDate(3, ngaySql);
             ResultSet rs = stmt.executeQuery();
             try {
                 ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<ChuongTrinhKhuyenMai>();

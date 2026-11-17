@@ -3,6 +3,7 @@ package service;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -140,7 +141,7 @@ public class BanHangService {
     }
 
     public ArrayList<ChuongTrinhKhuyenMai> layKhuyenMai() throws SQLException {
-        return thanhToanDAO.layKhuyenMai(new SimpleDateFormat("yyyyMMdd").format(new Date()));
+        return thanhToanDAO.layKhuyenMai(LocalDate.now());
     }
 
     public void chonKhuyenMai(ChuongTrinhKhuyenMai khuyenMai) {
@@ -177,8 +178,8 @@ public class BanHangService {
         ChuongTrinhKhuyenMai daChon = hoaDon.getChuongTrinhKM();
         if (daChon != null) {
             boolean conHieuLuc = false;
-            String ngay = new SimpleDateFormat("yyyyMMdd").format(thoiDiem);
-            for (ChuongTrinhKhuyenMai hienTai : thanhToanDAO.layKhuyenMai(ngay)) {
+            LocalDate ngayThanhToan = new java.sql.Date(thoiDiem.getTime()).toLocalDate();
+            for (ChuongTrinhKhuyenMai hienTai : thanhToanDAO.layKhuyenMai(ngayThanhToan)) {
                 if (daChon.equals(hienTai) && daChon.getLoaiKhuyenMai().equals(hienTai.getLoaiKhuyenMai())
                         && daChon.getGiaTriKM().compareTo(hienTai.getGiaTriKM()) == 0) {
                     conHieuLuc = true;
