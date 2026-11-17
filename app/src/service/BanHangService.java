@@ -2,10 +2,10 @@ package service;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 
 import dao.BanHangDAO;
 import dao.ThanhToanDAO;
@@ -19,6 +19,7 @@ import entity.SanPham;
 public class BanHangService {
     private static final int GIOI_HAN_GOI_Y = 20;
     private static final BigDecimal GIOI_HAN_SO_TIEN = new BigDecimal("999999999999999999");
+    private static final DateTimeFormatter DINH_DANG_NGAY_TRONG_MA = DateTimeFormatter.ofPattern("ddMMyy");
     private final BanHangDAO dao;
     private final ThanhToanDAO thanhToanDAO;
     private final HoaDon hoaDon = new HoaDon();
@@ -174,11 +175,11 @@ public class BanHangService {
         if (dongHang.isEmpty() || hoaDon.getKhachHang() == null || nhanVien == null) {
             throw new IllegalArgumentException("Cần có dòng hàng, khách hàng và nhân viên.");
         }
-        Date thoiDiem = new Date();
+        LocalDateTime thoiDiem = LocalDateTime.now().withNano(0);
+        LocalDate ngayThanhToan = thoiDiem.toLocalDate();
         ChuongTrinhKhuyenMai daChon = hoaDon.getChuongTrinhKM();
         if (daChon != null) {
             boolean conHieuLuc = false;
-            LocalDate ngayThanhToan = new java.sql.Date(thoiDiem.getTime()).toLocalDate();
             for (ChuongTrinhKhuyenMai hienTai : thanhToanDAO.layKhuyenMai(ngayThanhToan)) {
                 if (daChon.equals(hienTai) && daChon.getLoaiKhuyenMai().equals(hienTai.getLoaiKhuyenMai())
                         && daChon.getGiaTriKM().compareTo(hienTai.getGiaTriKM()) == 0) {
@@ -202,10 +203,9 @@ public class BanHangService {
         if (tienKhachDua.stripTrailingZeros().scale() > 0 || tienKhachDua.compareTo(GIOI_HAN_SO_TIEN) > 0) {
             throw new IllegalArgumentException("Số tiền phải là số nguyên tối đa 18 chữ số.");
         }
-        String ngayGio = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(thoiDiem);
-        HoaDon hoaDonLuu = new HoaDon(null, ngayGio, phuongThuc, "Đã thanh toán", tienKhachDua, ngayGio,
+        HoaDon hoaDonLuu = new HoaDon(null, thoiDiem, phuongThuc, "Đã thanh toán", tienKhachDua, thoiDiem,
                 layDongHang(), daChon, nhanVien, hoaDon.getKhachHang());
-        String tienTo = "HD" + new SimpleDateFormat("ddMMyy").format(thoiDiem);
+        String tienTo = "HD" + ngayThanhToan.format(DINH_DANG_NGAY_TRONG_MA);
         String ma = thanhToanDAO.luuHoaDon(hoaDonLuu, tienTo);
         xoaHoaDonDangLap();
         return ma;

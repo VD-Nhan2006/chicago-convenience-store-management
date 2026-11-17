@@ -1,7 +1,6 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,9 +21,8 @@ public class ThanhToanDAO {
         PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
         try {
             stmt.setString(1, HOAT_DONG);
-            Date ngaySql = Date.valueOf(ngay);
-            stmt.setDate(2, ngaySql);
-            stmt.setDate(3, ngaySql);
+            stmt.setObject(2, ngay);
+            stmt.setObject(3, ngay);
             ResultSet rs = stmt.executeQuery();
             try {
                 ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<ChuongTrinhKhuyenMai>();
@@ -103,11 +101,11 @@ public class ThanhToanDAO {
         PreparedStatement stmt = con.prepareStatement(sql);
         try {
             stmt.setString(1, ma);
-            stmt.setString(2, hd.getNgayGioLap());
+            stmt.setObject(2, hd.getNgayGioLap());
             stmt.setString(3, hd.getPhuongThucThanhToan());
             stmt.setString(4, hd.getTrangThaiThanhToan());
             stmt.setString(5, hd.getTienKhachDua().toPlainString());
-            stmt.setString(6, hd.getThoiGianThanhToan());
+            stmt.setObject(6, hd.getThoiGianThanhToan());
             stmt.setString(7, hd.getChuongTrinhKM() == null ? null : hd.getChuongTrinhKM().getMaKM());
             stmt.setString(8, hd.getKhachHang().getMaKhachHang());
             stmt.setString(9, hd.tinhTienKhuyenMai(hd.tinhTongTienSP()).toPlainString());
