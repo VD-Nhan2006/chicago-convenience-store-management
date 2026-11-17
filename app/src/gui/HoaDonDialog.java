@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -34,6 +35,7 @@ import service.HoaDonService;
 
 public class HoaDonDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
+    private static final DateTimeFormatter DINH_DANG_NGAY_LAP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Color MAU_XANH = new Color(23, 52, 81);
     private static final Color MAU_NEN = new Color(230, 237, 245);
     private static final Color MAU_VIEN = new Color(177, 194, 211);
@@ -107,7 +109,7 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         trai.setOpaque(false);
         phai.setOpaque(false);
         trai.add(taoTruong("Mã hóa đơn", hoaDon.getMaHoaDon()));
-        trai.add(taoTruong("Ngày lập", hoaDon.dinhDangNgayLap().substring(0, 16)));
+        trai.add(taoTruong("Ngày lập", hoaDon.getNgayGioLap().format(DINH_DANG_NGAY_LAP)));
         trai.add(taoTruong("Nhân viên", hoaDon.getNhanVien().getHo() + " " + hoaDon.getNhanVien().getTen()));
         trai.add(taoTruong("Khách hàng", hoaDon.getKhachHang().getHo() + " " + hoaDon.getKhachHang().getTen()));
         phai.add(taoTruong("SĐT khách hàng", hoaDon.getKhachHang().getSoDienThoai()));

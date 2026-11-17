@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import connectDB.ConnectDB;
@@ -46,9 +47,10 @@ public class HoaDonDAO {
                     km.setLoaiKhuyenMai(rs.getString("loaiKhuyenMai"));
                     km.setGiaTriKM(new BigDecimal(rs.getString("giaTriKM")));
                 }
-                hoaDon = new HoaDon(ma, rs.getString("ngayGioLap"),
+                hoaDon = new HoaDon(ma, rs.getObject("ngayGioLap", LocalDateTime.class),
                         rs.getString("phuongThucThanhToan"), rs.getString("trangThaiThanhToan"),
-                        new BigDecimal(rs.getString("tienKhachDua")), rs.getString("thoiGianThanhToan"),
+                        new BigDecimal(rs.getString("tienKhachDua")),
+                        rs.getObject("thoiGianThanhToan", LocalDateTime.class),
                         null, km, nv, kh);
                 String tienGiam = rs.getString("tienDuocGiam");
                 String tongThanhToan = rs.getString("tongThanhToan");
