@@ -3,10 +3,12 @@ package entity;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class HoaDon {	
+	private static final DateTimeFormatter DINH_DANG_NGAY_LAP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 	private String maHoaDon;
 	private LocalDateTime ngayGioLap;
 	private String phuongThucThanhToan;
@@ -224,5 +226,8 @@ public class HoaDon {
 		this.tienGiamDaLuu = tienGiam;
 		this.tongThanhToanDaLuu = tongThanhToan;
 	}
-	
-}	
+
+	public String dinhDangNgayLap() {
+		return ngayGioLap.format(DINH_DANG_NGAY_LAP);
+	}
+}

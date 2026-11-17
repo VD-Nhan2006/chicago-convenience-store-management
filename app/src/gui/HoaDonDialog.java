@@ -7,7 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -36,6 +35,7 @@ import service.HoaDonService;
 
 public class HoaDonDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
+    private static final DateTimeFormatter DINH_DANG_NGAY_LAP = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Color MAU_XANH = new Color(23, 52, 81);
     private static final Color MAU_NEN = new Color(230, 237, 245);
     private static final Color MAU_VIEN = new Color(177, 194, 211);
@@ -87,9 +87,8 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         dauTrang.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, MAU_VIEN),
                 BorderFactory.createEmptyBorder(0, 0, 14, 0)));
-        ImageIcon anh = new ImageIcon(HoaDonDialog.class.getResource("/image/LogoNenTrang.png"));
-        Image logo = anh.getImage().getScaledInstance(132, -1, Image.SCALE_SMOOTH);
-        dauTrang.add(new JLabel(new ImageIcon(logo)), BorderLayout.WEST);
+        ImageIcon logo = new ImageIcon(HoaDonDialog.class.getResource("/image/LogoHoaDon.png"));
+        dauTrang.add(new JLabel(logo), BorderLayout.WEST);
 
         JPanel cuaHang = new JPanel(new GridLayout(4, 1, 0, 3));
         cuaHang.setOpaque(false);
@@ -110,7 +109,7 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         trai.setOpaque(false);
         phai.setOpaque(false);
         trai.add(taoTruong("Mã hóa đơn", hoaDon.getMaHoaDon()));
-        trai.add(taoTruong("Ngày lập", hoaDon.getNgayGioLap().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+        trai.add(taoTruong("Ngày lập", hoaDon.getNgayGioLap().format(DINH_DANG_NGAY_LAP)));
         trai.add(taoTruong("Nhân viên", hoaDon.getNhanVien().getHo() + " " + hoaDon.getNhanVien().getTen()));
         trai.add(taoTruong("Khách hàng", hoaDon.getKhachHang().getHo() + " " + hoaDon.getKhachHang().getTen()));
         phai.add(taoTruong("SĐT khách hàng", hoaDon.getKhachHang().getSoDienThoai()));

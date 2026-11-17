@@ -1,7 +1,6 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,14 +21,18 @@ public class QuanLyKhuyenMaiDAO {
 				PreparedStatement statement = connection.prepareStatement(sql);
 				ResultSet result = statement.executeQuery()) {
 			while (result.next()) {
-				danhSach.add(new ChuongTrinhKhuyenMai(result.getString("maKM"),
-						result.getString("tenChuongTrinh"), result.getString("moTa"),
-						result.getString("loaiKhuyenMai"), result.getBigDecimal("giaTriKM"),
-						result.getDate("ngayBatDau").toLocalDate(), result.getDate("ngayKetThuc").toLocalDate(),
-						result.getString("trangThai")));
+				danhSach.add(docKhuyenMai(result));
 			}
 		}
 		return danhSach;
+	}
+
+	static ChuongTrinhKhuyenMai docKhuyenMai(ResultSet result) throws SQLException {
+		return new ChuongTrinhKhuyenMai(result.getString("maKM"),
+				result.getString("tenChuongTrinh"), result.getString("moTa"),
+				result.getString("loaiKhuyenMai"), result.getBigDecimal("giaTriKM"),
+				result.getObject("ngayBatDau", LocalDate.class), result.getObject("ngayKetThuc", LocalDate.class),
+				result.getString("trangThai"));
 	}
 
 	public String sinhMa() throws SQLException {
@@ -71,8 +74,8 @@ public class QuanLyKhuyenMaiDAO {
 			statement.setString(2, khuyenMai.getMoTa());
 			statement.setString(3, khuyenMai.getLoaiKhuyenMai());
 			statement.setBigDecimal(4, khuyenMai.getGiaTriKM());
-			statement.setDate(5, Date.valueOf(khuyenMai.getNgayBatDau()));
-			statement.setDate(6, Date.valueOf(khuyenMai.getNgayKetThuc()));
+			statement.setObject(5, khuyenMai.getNgayBatDau());
+			statement.setObject(6, khuyenMai.getNgayKetThuc());
 			statement.setString(7, khuyenMai.getTrangThai());
 			statement.setString(8, khuyenMai.getMaKM());
 			return statement.executeUpdate() > 0;
@@ -95,8 +98,8 @@ public class QuanLyKhuyenMaiDAO {
 		statement.setString(3, khuyenMai.getMoTa());
 		statement.setString(4, khuyenMai.getLoaiKhuyenMai());
 		statement.setBigDecimal(5, khuyenMai.getGiaTriKM());
-		statement.setDate(6, Date.valueOf(khuyenMai.getNgayBatDau()));
-		statement.setDate(7, Date.valueOf(khuyenMai.getNgayKetThuc()));
+		statement.setObject(6, khuyenMai.getNgayBatDau());
+		statement.setObject(7, khuyenMai.getNgayKetThuc());
 		statement.setString(8, khuyenMai.getTrangThai());
 	}
 }

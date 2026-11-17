@@ -3,8 +3,8 @@
     Chạy sau 01_TaoCSDL_DBChicago.sql. Chạy lại được: xóa dữ liệu cũ rồi chèn lại.
 
     Mật khẩu mẫu của mọi tài khoản là 123456.
-    matKhau lưu SHA-256 của chuỗi ASCII "123456":
-    8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+    matKhau lưu chuỗi Base64 mã hóa AES-256-GCM của chuỗi "123456":
+    rbIgu1St1CgO32Sfu7oJ3QhdXLIZu68NN02+iA4TWSaIrA==
 
     giaBan = giaNhap + mucLoiNhuan, nên mức lời nhuận dưới đây là số tiền:
       Nước suối  8.000 + 2.000 = 10.000
@@ -76,10 +76,10 @@ INSERT INTO dbo.NhanVien (maNhanVien, ho, ten, soDienThoai, diaChi, trangThai) V
     ('NV071126004', N'Quản Trị', N'Admin', '0901000004', N'1 Nguyễn Văn Bảo, Gò Vấp', N'Đang hoạt động');
 
 INSERT INTO dbo.TaiKhoan (maNhanVien, matKhau, vaiTro, trangThai) VALUES
-    ('NV071126001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý', N'Đang hoạt động'),
-    ('NV071126002', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân', N'Đang hoạt động'),
-    ('NV071126003', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Nhân viên thu ngân', N'Ngừng hoạt động'),
-    ('NV071126004', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', N'Quản lý', N'Đang hoạt động');
+    ('NV071126001', 'rbIgu1St1CgO32Sfu7oJ3QhdXLIZu68NN02+iA4TWSaIrA==', N'Quản lý', N'Đang hoạt động'),
+    ('NV071126002', 'rbIgu1St1CgO32Sfu7oJ3QhdXLIZu68NN02+iA4TWSaIrA==', N'Nhân viên thu ngân', N'Đang hoạt động'),
+    ('NV071126003', 'rbIgu1St1CgO32Sfu7oJ3QhdXLIZu68NN02+iA4TWSaIrA==', N'Nhân viên thu ngân', N'Ngừng hoạt động'),
+    ('NV071126004', 'rbIgu1St1CgO32Sfu7oJ3QhdXLIZu68NN02+iA4TWSaIrA==', N'Quản lý', N'Đang hoạt động');
 
 INSERT INTO dbo.KhachHang (maKhachHang, ho, ten, gioiTinh, soDienThoai, diaChi) VALUES
     ('KH071126001', N'Nguyễn Thị', N'Mai', N'Nữ', '0912000001', N'12 Nguyễn Văn Bảo, Gò Vấp'),
