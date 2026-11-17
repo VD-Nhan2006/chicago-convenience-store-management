@@ -154,7 +154,7 @@ public class QuanLySanPham extends JPanel implements ActionListener, ListSelecti
 	private void taoCacNut(JPanel form) {
 		btnThem = QuanLyUi.taoNut("Thêm", true);
 		btnCapNhat = QuanLyUi.taoNut("Cập nhật", false);
-		btnNgung = QuanLyUi.taoNut("Ngừng hoạt động", false);
+		btnNgung = QuanLyUi.taoNut("Xóa", false);
 		btnLamMoi = QuanLyUi.taoNut("Làm mới", false);
 		btnThem.addActionListener(this);
 		btnCapNhat.addActionListener(this);
