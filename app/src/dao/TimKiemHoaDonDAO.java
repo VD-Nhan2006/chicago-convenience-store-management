@@ -17,6 +17,9 @@ import entity.NhanVien;
 import entity.SanPham;
 
 public class TimKiemHoaDonDAO {
+	public TimKiemHoaDonDAO() {
+		// TODO Auto-generated constructor stub
+	}
 
     private static final String CHON_HOA_DON =
             "SELECT hd.maHoaDon, hd.ngayGioLap, hd.phuongThucThanhToan, hd.trangThaiThanhToan, "

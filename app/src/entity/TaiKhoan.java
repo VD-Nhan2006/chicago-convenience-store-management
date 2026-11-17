@@ -4,6 +4,7 @@ public class TaiKhoan {
 	private NhanVien nhanVien;
 	private String matKhau;
 	private VaiTro vaiTro;
+	private String trangThai;
 
 	public TaiKhoan() {
 	}
@@ -12,10 +13,11 @@ public class TaiKhoan {
 		setNhanVien(nhanVien);
 	}
 
-	public TaiKhoan(NhanVien nhanVien, String matKhau, VaiTro vaiTro) {
+	public TaiKhoan(NhanVien nhanVien, String matKhau, VaiTro vaiTro, String trangThai) {
 		setNhanVien(nhanVien);
 		setMatKhau(matKhau);
 		setVaiTro(vaiTro);
+		setTrangThai(trangThai);
 	}
 
 	public NhanVien getNhanVien() {
@@ -51,6 +53,15 @@ public class TaiKhoan {
 			throw new IllegalArgumentException("Vai trò không được để trống.");
 		}
 		this.vaiTro = vaiTro;
+	}
+
+	public String getTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(String trangThai) {
+		RangBuoc.motTrong(trangThai, 30, "Trạng thái tài khoản", "Đang hoạt động", "Ngừng hoạt động");
+		this.trangThai = trangThai;
 	}
 
 	@Override

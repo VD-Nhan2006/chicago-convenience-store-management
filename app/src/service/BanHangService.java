@@ -68,7 +68,7 @@ public class BanHangService {
         }
         return ketQua;
     }
-    
+
     private boolean chuaTuKhoa(String noiDung, String tuKhoa) {
         int doDai = tuKhoa.length();
         for (int i = 0; i <= noiDung.length() - doDai; i++) {
@@ -108,12 +108,14 @@ public class BanHangService {
         for (ChiTietHoaDon dong : dongHang) {
             if (sanPham.equals(dong.getSanPham())) {
                 kiemTraTon(sanPham, (long) dong.getSoLuong() + soLuong);
+                kiemTraTienDong(dong.getGiaBan(), dong.getSoLuong() + soLuong);
                 dong.setSoLuong(dong.getSoLuong() + soLuong);
                 dong.setSanPham(sanPham);
                 return;
             }
         }
         kiemTraTon(sanPham, soLuong);
+        kiemTraTienDong(sanPham.getGiaBan(), soLuong);
         dongHang.add(new ChiTietHoaDon(sanPham, soLuong, sanPham.getGiaBan()));
     }
 
@@ -122,6 +124,7 @@ public class BanHangService {
         ChiTietHoaDon dong = dongHang.get(viTri);
         SanPham sanPham = timSanPham(dong.getSanPham().getMaSanPham());
         kiemTraTon(sanPham, soLuong);
+        kiemTraTienDong(dong.getGiaBan(), soLuong);
         dong.setSanPham(sanPham);
         dong.setSoLuong(soLuong);
     }
@@ -197,23 +200,34 @@ public class BanHangService {
         if (tienKhachDua == null || tienKhachDua.compareTo(tong) < 0) {
             throw new IllegalArgumentException("Tiền khách đưa chưa đủ.");
         }
-        if (tienKhachDua.stripTrailingZeros().scale() > 0 || tienKhachDua.compareTo(
-                new BigDecimal("999999999999999999")) > 0) {
+        if (tienKhachDua.stripTrailingZeros().scale() > 0 || tienKhachDua.compareTo(GIOI_HAN_SO_TIEN) > 0) {
             throw new IllegalArgumentException("Số tiền phải là số nguyên tối đa 18 chữ số.");
         }
         HoaDon hoaDonLuu = new HoaDon(null, thoiDiem, phuongThuc, "Đã thanh toán", tienKhachDua, thoiDiem,
                 layDongHang(), daChon, nhanVien, hoaDon.getKhachHang());
         String tienTo = "HD" + ngayThanhToan.format(DINH_DANG_NGAY_TRONG_MA);
         String ma = thanhToanDAO.luuHoaDon(hoaDonLuu, tienTo);
-        dongHang.clear();
+        xoaHoaDonDangLap();
+        return ma;
+    }
+
+    public void xoaHoaDonDangLap() {
+        while (coDongHang()) {
+            xoaDong(dongHang.size() - 1);
+        }
         hoaDon.setKhachHang(null);
         hoaDon.setChuongTrinhKM(null);
-        return ma;
     }
 
     private void kiemTraSoLuongDuong(int soLuong) {
         if (soLuong <= 0) {
             throw new IllegalArgumentException("Số lượng phải lớn hơn 0.");
+        }
+    }
+
+    private void kiemTraTienDong(BigDecimal donGia, int soLuong) {
+        if (donGia.multiply(BigDecimal.valueOf(soLuong)).compareTo(GIOI_HAN_SO_TIEN) > 0) {
+            throw new IllegalArgumentException("Thành tiền của một dòng hàng vượt giới hạn 18 chữ số.");
         }
     }
 
