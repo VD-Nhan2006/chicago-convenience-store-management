@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -22,9 +20,10 @@ public class ThanhToanDAO {
                 + "AND ngayBatDau <= ? AND ngayKetThuc >= ? ORDER BY tenChuongTrinh, maKM";
         PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
         try {
-            stmt.setNString(1, HOAT_DONG);
-            stmt.setDate(2, java.sql.Date.valueOf(ngay));
-            stmt.setDate(3, java.sql.Date.valueOf(ngay));
+
+            stmt.setString(1, HOAT_DONG);
+            stmt.setObject(2, ngay);
+            stmt.setObject(3, ngay);
             ResultSet rs = stmt.executeQuery();
             try {
                 ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<ChuongTrinhKhuyenMai>();
@@ -106,16 +105,12 @@ public class ThanhToanDAO {
         PreparedStatement stmt = con.prepareStatement(sql);
         try {
             stmt.setString(1, ma);
-            stmt.setTimestamp(2, Timestamp.valueOf(hd.getNgayGioLap()));
-            stmt.setNString(3, hd.getPhuongThucThanhToan());
-            stmt.setNString(4, hd.getTrangThaiThanhToan());
-            stmt.setBigDecimal(5, hd.getTienKhachDua());
-            stmt.setTimestamp(6, Timestamp.valueOf(hd.getThoiGianThanhToan()));
-            if (hd.getChuongTrinhKM() == null) {
-                stmt.setNull(7, Types.VARCHAR);
-            } else {
-                stmt.setString(7, hd.getChuongTrinhKM().getMaKM());
-            }
+            stmt.setObject(2, hd.getNgayGioLap());
+            stmt.setString(3, hd.getPhuongThucThanhToan());
+            stmt.setString(4, hd.getTrangThaiThanhToan());
+            stmt.setString(5, hd.getTienKhachDua().toPlainString());
+            stmt.setObject(6, hd.getThoiGianThanhToan());
+            stmt.setString(7, hd.getChuongTrinhKM() == null ? null : hd.getChuongTrinhKM().getMaKM());
             stmt.setString(8, hd.getKhachHang().getMaKhachHang());
             stmt.setBigDecimal(9, hd.tinhTienKhuyenMai(hd.tinhTongTienSP()));
             stmt.setBigDecimal(10, hd.tinhTongTienThanhToan());
