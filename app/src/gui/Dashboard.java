@@ -106,7 +106,7 @@ public class Dashboard extends JPanel {
 
         pnl.add(taoThe("Doanh thu hôm nay",  lblDoanhThu,  MAU_XANH));
         pnl.add(taoThe("Số hóa đơn",          lblSoHoaDon,  MAU_DO));
-        pnl.add(taoThe("Tiền được giảm",       lblTienGiam,  MAU_XANH));
+//        pnl.add(taoThe("Tiền được giảm",       lblTienGiam,  MAU_XANH));
         pnl.add(taoThe("Sản phẩm đã bán",     lblSanPham,   MAU_DO));
 
         return pnl;
