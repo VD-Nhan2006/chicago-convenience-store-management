@@ -12,7 +12,9 @@ import connectDB.ConnectDB;
 import entity.KhachHang;
 
 public class KhachHangDAO {
-
+	public KhachHangDAO() {
+		// TODO Auto-generated constructor stub
+	}
     private static final String CHON_COT =
             "SELECT maKhachHang, ho, ten, gioiTinh, soDienThoai, diaChi FROM dbo.KhachHang";
 

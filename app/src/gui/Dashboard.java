@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
+import javax.swing.BorderFactory;	
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -25,6 +25,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 import dao.ThongKeDAO;
+import service.ThongKeService;
 
 public class Dashboard extends JPanel {
 
@@ -44,7 +45,7 @@ public class Dashboard extends JPanel {
     private JTable tblHoaDon;
     private DefaultTableModel tableModel;
 
-    private ThongKeDAO dao = new ThongKeDAO();
+    private final ThongKeService thongKeService = new ThongKeService();
     private final DateTimeFormatter FMT_NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Dashboard() {
@@ -168,8 +169,8 @@ public class Dashboard extends JPanel {
         ArrayList<ThongKeDAO.DongHoaDon> dsHD;
         ThongKeDAO.TongHop tongHop;
         try {
-            dsHD = dao.layHoaDon(homNay, homNay);
-            tongHop = dao.tongHop(homNay, homNay);
+            dsHD = thongKeService.layHoaDon(homNay, homNay);
+            tongHop = thongKeService.tongHop(homNay, homNay);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(),
                     "Lỗi", JOptionPane.ERROR_MESSAGE);

@@ -25,7 +25,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dao.KhachHangDAO;
+import service.QuanLyKhachHangService;
 
 public class ThemKhachHang extends JPanel implements ActionListener {
 
@@ -33,7 +33,8 @@ public class ThemKhachHang extends JPanel implements ActionListener {
 
     private static final String MA_TU_DONG = "Tự động tạo";
 
-    private KhachHangDAO dao = new KhachHangDAO();
+	private final QuanLyKhachHangService khachHangService =
+	        new QuanLyKhachHangService();
     private Runnable onDong;
 
     private JButton btnQuayLai;
@@ -233,7 +234,7 @@ public class ThemKhachHang extends JPanel implements ActionListener {
         }
         String[] ht = QuanLyKhachHang.tachHoTen(txtHoTen.getText());
         try {
-            String ma = dao.themMoi(ht[0], ht[1],
+            String ma = khachHangService.themMoi(ht[0], ht[1],
                     (String) cboGioiTinh.getSelectedItem(),
                     txtSoDienThoai.getText().trim(),
                     QuanLyKhachHang.diaChiLuu(txtDiaChi.getText()));

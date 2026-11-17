@@ -35,7 +35,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import dao.TimKiemHoaDonDAO;
+import service.TimKiemHoaDonService;
 import entity.ChuongTrinhKhuyenMai;
 import entity.HoaDon;
 
@@ -52,7 +52,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
     private static final DateTimeFormatter FMT_D  = DateTimeFormatter.ofPattern("dd/MM/uuuu")
             .withResolverStyle(ResolverStyle.STRICT);
 
-    private final TimKiemHoaDonDAO dao = new TimKiemHoaDonDAO();
+    private final TimKiemHoaDonService hoaDonService = new TimKiemHoaDonService();
     private ArrayList<HoaDon> dsHienTai = new ArrayList<HoaDon>();
     private JTextField txtMaHD, txtTuNgay, txtDenNgay, txtKhachHang;
     private JButton btnTim, btnLamMoi;
@@ -303,7 +303,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
 
     private void taiLai() {
         try {
-            hienThi(dao.timKiem("", null, null, ""));
+            hienThi(hoaDonService.timKiem("", null, null, ""));
         } catch (SQLException e) {
             baoLoiCsdl(e);
         }
@@ -349,7 +349,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
             return;
         }
         try {
-            hienThi(dao.timKiem(maHD, tuNgay, denNgay, tenKH));
+        	hienThi(hoaDonService.timKiem(maHD, tuNgay, denNgay, tenKH));
         } catch (SQLException e) {
             baoLoiCsdl(e);
             return;
@@ -378,7 +378,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener {
         if (row < 0 || row >= dsHienTai.size()) return;
         HoaDon hd;
         try {
-            hd = dao.layChiTiet(dsHienTai.get(row).getMaHoaDon());
+        	hd = hoaDonService.layChiTiet(dsHienTai.get(row).getMaHoaDon());
         } catch (SQLException e) {
             baoLoiCsdl(e);
             return;

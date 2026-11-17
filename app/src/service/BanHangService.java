@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import dao.BanHangDAO;
 import dao.ThanhToanDAO;
@@ -18,8 +19,6 @@ import entity.SanPham;
 
 public class BanHangService {
     private static final int GIOI_HAN_GOI_Y = 20;
-    private static final BigDecimal GIOI_HAN_SO_TIEN = new BigDecimal("999999999999999999");
-    private static final DateTimeFormatter DINH_DANG_NGAY_TRONG_MA = DateTimeFormatter.ofPattern("ddMMyy");
     private final BanHangDAO dao;
     private final ThanhToanDAO thanhToanDAO;
     private final HoaDon hoaDon = new HoaDon();
@@ -53,30 +52,20 @@ public class BanHangService {
         if (danhMucKhachHang == null) {
             danhMucKhachHang = dao.layKhachHang();
         }
+        Pattern mau = Pattern.compile(Pattern.quote(tuKhoa), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         ArrayList<KhachHang> ketQua = new ArrayList<KhachHang>();
         for (KhachHang kh : danhMucKhachHang) {
             if (tuKhoa.equalsIgnoreCase(kh.getMaKhachHang())) {
-                ketQua = new ArrayList<KhachHang>();
+                ketQua.clear();
                 ketQua.add(kh);
                 return ketQua;
             }
-            if (ketQua.size() < GIOI_HAN_GOI_Y && (chuaTuKhoa(kh.getMaKhachHang(), tuKhoa)
-                    || chuaTuKhoa(kh.getSoDienThoai(), tuKhoa)
-                    || chuaTuKhoa(kh.getHo() + " " + kh.getTen(), tuKhoa))) {
+            if (ketQua.size() < GIOI_HAN_GOI_Y && (mau.matcher(kh.getMaKhachHang()).find()
+                    || mau.matcher(kh.getSoDienThoai()).find() || mau.matcher(kh.getHo() + " " + kh.getTen()).find())) {
                 ketQua.add(kh);
             }
         }
         return ketQua;
-    }
-
-    private boolean chuaTuKhoa(String noiDung, String tuKhoa) {
-        int doDai = tuKhoa.length();
-        for (int i = 0; i <= noiDung.length() - doDai; i++) {
-            if (noiDung.substring(i, i + doDai).equalsIgnoreCase(tuKhoa)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void napDanhMucTraCuu() throws SQLException {
@@ -108,14 +97,12 @@ public class BanHangService {
         for (ChiTietHoaDon dong : dongHang) {
             if (sanPham.equals(dong.getSanPham())) {
                 kiemTraTon(sanPham, (long) dong.getSoLuong() + soLuong);
-                kiemTraTienDong(dong.getGiaBan(), dong.getSoLuong() + soLuong);
                 dong.setSoLuong(dong.getSoLuong() + soLuong);
                 dong.setSanPham(sanPham);
                 return;
             }
         }
         kiemTraTon(sanPham, soLuong);
-        kiemTraTienDong(sanPham.getGiaBan(), soLuong);
         dongHang.add(new ChiTietHoaDon(sanPham, soLuong, sanPham.getGiaBan()));
     }
 
@@ -124,7 +111,6 @@ public class BanHangService {
         ChiTietHoaDon dong = dongHang.get(viTri);
         SanPham sanPham = timSanPham(dong.getSanPham().getMaSanPham());
         kiemTraTon(sanPham, soLuong);
-        kiemTraTienDong(dong.getGiaBan(), soLuong);
         dong.setSanPham(sanPham);
         dong.setSoLuong(soLuong);
     }
@@ -176,11 +162,10 @@ public class BanHangService {
             throw new IllegalArgumentException("Cần có dòng hàng, khách hàng và nhân viên.");
         }
         LocalDateTime thoiDiem = LocalDateTime.now().withNano(0);
-        LocalDate ngayThanhToan = thoiDiem.toLocalDate();
         ChuongTrinhKhuyenMai daChon = hoaDon.getChuongTrinhKM();
         if (daChon != null) {
             boolean conHieuLuc = false;
-            for (ChuongTrinhKhuyenMai hienTai : thanhToanDAO.layKhuyenMai(ngayThanhToan)) {
+            for (ChuongTrinhKhuyenMai hienTai : thanhToanDAO.layKhuyenMai(thoiDiem.toLocalDate())) {
                 if (daChon.equals(hienTai) && daChon.getLoaiKhuyenMai().equals(hienTai.getLoaiKhuyenMai())
                         && daChon.getGiaTriKM().compareTo(hienTai.getGiaTriKM()) == 0) {
                     conHieuLuc = true;
@@ -200,34 +185,23 @@ public class BanHangService {
         if (tienKhachDua == null || tienKhachDua.compareTo(tong) < 0) {
             throw new IllegalArgumentException("Tiền khách đưa chưa đủ.");
         }
-        if (tienKhachDua.stripTrailingZeros().scale() > 0 || tienKhachDua.compareTo(GIOI_HAN_SO_TIEN) > 0) {
+        if (tienKhachDua.stripTrailingZeros().scale() > 0 || tienKhachDua.compareTo(
+                new BigDecimal("999999999999999999")) > 0) {
             throw new IllegalArgumentException("Số tiền phải là số nguyên tối đa 18 chữ số.");
         }
         HoaDon hoaDonLuu = new HoaDon(null, thoiDiem, phuongThuc, "Đã thanh toán", tienKhachDua, thoiDiem,
                 layDongHang(), daChon, nhanVien, hoaDon.getKhachHang());
-        String tienTo = "HD" + ngayThanhToan.format(DINH_DANG_NGAY_TRONG_MA);
+        String tienTo = "HD" + thoiDiem.format(DateTimeFormatter.ofPattern("ddMMyy"));
         String ma = thanhToanDAO.luuHoaDon(hoaDonLuu, tienTo);
-        xoaHoaDonDangLap();
-        return ma;
-    }
-
-    public void xoaHoaDonDangLap() {
-        while (coDongHang()) {
-            xoaDong(dongHang.size() - 1);
-        }
+        dongHang.clear();
         hoaDon.setKhachHang(null);
         hoaDon.setChuongTrinhKM(null);
+        return ma;
     }
 
     private void kiemTraSoLuongDuong(int soLuong) {
         if (soLuong <= 0) {
             throw new IllegalArgumentException("Số lượng phải lớn hơn 0.");
-        }
-    }
-
-    private void kiemTraTienDong(BigDecimal donGia, int soLuong) {
-        if (donGia.multiply(BigDecimal.valueOf(soLuong)).compareTo(GIOI_HAN_SO_TIEN) > 0) {
-            throw new IllegalArgumentException("Thành tiền của một dòng hàng vượt giới hạn 18 chữ số.");
         }
     }
 

@@ -36,7 +36,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 
-import dao.KhachHangDAO;
+import service.QuanLyKhachHangService;
+
+
 import entity.KhachHang;
 
 public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelectionListener {
@@ -52,7 +54,8 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 	static final String DIA_CHI_MAC_DINH = "Chưa cập nhật";
 	private static final String CARD_DS = "ds";
 	private static final String CARD_THEM = "them";
-	private KhachHangDAO dao = new KhachHangDAO();
+	private final QuanLyKhachHangService khachHangService =
+	        new QuanLyKhachHangService();
 	private CardLayout cardLayout = new CardLayout();
 	private JPanel pnlDanhSach;
 	private ThemKhachHang pnlThem;
@@ -110,7 +113,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		cardLayout.show(this, CARD_DS);
 	}
 
-	// Tạo tiêu đề + ô tìm kiếm
 	private void taoTieuDe() {
 		JPanel pnlTieuDe = new JPanel(new BorderLayout());
 		pnlTieuDe.setBackground(BG);
@@ -155,7 +157,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		pnlDanhSach.add(pnlTieuDe, BorderLayout.NORTH);
 	}
 
-	// Tạo vùng nội dung: bảng bên trái, form bên phải
 	private void taoNoiDung() {
 		JPanel pnlNoiDung = new JPanel(new BorderLayout(12, 0));
 		pnlNoiDung.setBackground(BG);
@@ -166,7 +167,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		pnlDanhSach.add(pnlNoiDung, BorderLayout.CENTER);
 	}
 
-	// Tạo bảng danh sách khách hàng
+
 	private JScrollPane taoBangKhachHang() {
 		String[] tieuDe = { "Mã KH", "Họ tên", "Giới tính", "Số điện thoại", "Địa chỉ" };
 
@@ -211,7 +212,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		tblKhachHang.getColumnModel().getColumn(3).setPreferredWidth(110);
 		tblKhachHang.getColumnModel().getColumn(4).setPreferredWidth(260);
 
-		// Khi chọn dòng thì đưa dữ liệu lên form
 		tblKhachHang.getSelectionModel().addListSelectionListener(this);
 
 		JScrollPane scrollPane = new JScrollPane(tblKhachHang);
@@ -220,7 +220,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		return scrollPane;
 	}
 
-	// Tạo form thông tin khách hàng
 	private JPanel taoFormKhachHang() {
 		JPanel pnlForm = new JPanel();
 		pnlForm.setPreferredSize(new Dimension(300, 0));
@@ -289,7 +288,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		return pnlForm;
 	}
 
-	// Tạo một trường nhập liệu gồm nhãn và ô nhập
 	private JPanel taoTruongNhap(String ten, JComponent input) {
 		JPanel pnl = new JPanel();
 		pnl.setBackground(Color.WHITE);
@@ -327,7 +325,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		return btn;
 	}
 
-	// Xử lý dữ liệu 
+
 
 	private void hienThi(ArrayList<KhachHang> ds) {
 		dsHienTai = ds;
@@ -340,7 +338,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 
 	private void taiLai() {
 		try {
-			hienThi(dao.getAll());
+			hienThi(khachHangService.layDanhSach());
 		} catch (SQLException e) {
 			baoLoiCsdl(e);
 		}
@@ -349,7 +347,9 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 	private void timKiem() {
 		String kw = txtTim.getText().trim();
 		try {
-			hienThi(kw.isEmpty() ? dao.getAll() : dao.timKiem(kw));
+			hienThi(kw.isEmpty()
+			        ? khachHangService.layDanhSach()
+			        : khachHangService.timKiem(kw));
 		} catch (SQLException e) {
 			baoLoiCsdl(e);
 			return;
@@ -357,7 +357,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		xoaForm();
 	}
 
-	// Hiển thị thông tin dòng được chọn lên form
 	private void hienThiThongTin(int row) {
 		if (row < 0 || row >= dsHienTai.size()) {
 			return;
@@ -401,7 +400,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		try {
 			KhachHang kh = new KhachHang(ma, ht[0], ht[1], (String) cboGioiTinh.getSelectedItem(),
 					txtSoDienThoai.getText().trim(), diaChiLuu(txtDiaChi.getText()));
-			dao.capNhat(kh);
+			khachHangService.capNhat(kh);
 			JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thành công.");
 			lamMoi();
 		} catch (IllegalArgumentException ex) {
@@ -422,7 +421,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		if (ok != JOptionPane.YES_OPTION) return;
 
 		try {
-			dao.xoa(ma);
+			khachHangService.xoa(ma);
 			lamMoi();
 		} catch (IllegalArgumentException ex) {
 			JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -439,7 +438,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		JOptionPane.showMessageDialog(this, "Lỗi cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
 	}
 
-	//  Sự kiện 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -467,7 +465,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, ListSelec
 		}
 	}
 
-	// Hàm dùng chung 
 
 	static String chuanHoaTen(String s) {
 		return s == null ? "" : s.trim().replaceAll("\\s+", " ");
