@@ -283,7 +283,7 @@ public class FrmChinh extends JFrame implements ActionListener{
 
         lblVaiTro.setFont(new Font("Arial", Font.PLAIN, 12));
         
-        btnDoiMatKhau = new JButton("Đổi mật khẩu");
+        btnDoiMatKhau = new JButton("Quên mật khẩu");
 
         btnDoiMatKhau.setForeground(Color.WHITE);
         btnDoiMatKhau.setBackground(MAU_NEN_MENU);
@@ -344,6 +344,10 @@ public class FrmChinh extends JFrame implements ActionListener{
         pnlNoiDung.add(pnlQuanLyLoaiSanPham, "LOAI_SAN_PHAM");
         pnlQuanLyKhuyenMai = new QuanLyKhuyenMai();
         pnlNoiDung.add(pnlQuanLyKhuyenMai, "KHUYEN_MAI");
+        pnlNoiDung.add(new QuanLyKhachHang(), "KHACH_HANG");
+        pnlNoiDung.add(new TimKiemHoaDon(), "TIM_KIEM_HOA_DON");
+        pnlNoiDung.add(new Dashboard(), "DASHBOARD");
+        pnlNoiDung.add(new ThongKe(), "THONG_KE");
     }
 
 	@Override
@@ -362,11 +366,6 @@ public class FrmChinh extends JFrame implements ActionListener{
 				new DangNhap().setVisible(true);
 			}
 			return;			
-		}
-		
-		if(btn == btnDoiMatKhau) {
-			new DoiMatKhauDialog(this).setVisible(true);
-			return;
 		}
 		capNhatNutDangChon(btn);
 		String maManHinh = danhSachMenu.get(btn);

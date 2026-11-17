@@ -13,6 +13,8 @@ import entity.LoaiSanPham;
 import entity.SanPham;
 
 public class QuanLySanPhamDAO {
+	public void QuanLyLoaiSanPhamDAO() {
+	}
 	public ArrayList<SanPham> layDanhSach() throws SQLException {
 		String sql = "SELECT sp.maSanPham, sp.tenSanPham, sp.donViTinh, sp.soLuongTon, "
 				+ "sp.giaNhap, sp.mucLoiNhuan, sp.trangThai, l.maLoaiSanPham, "

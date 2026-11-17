@@ -20,6 +20,7 @@ public class ThanhToanDAO {
                 + "AND ngayBatDau <= ? AND ngayKetThuc >= ? ORDER BY tenChuongTrinh, maKM";
         PreparedStatement stmt = ConnectDB.getConnection().prepareStatement(sql);
         try {
+
             stmt.setString(1, HOAT_DONG);
             stmt.setObject(2, ngay);
             stmt.setObject(3, ngay);
@@ -27,7 +28,11 @@ public class ThanhToanDAO {
             try {
                 ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<ChuongTrinhKhuyenMai>();
                 while (rs.next()) {
-                    danhSach.add(QuanLyKhuyenMaiDAO.docKhuyenMai(rs));
+                    danhSach.add(new ChuongTrinhKhuyenMai(rs.getString("maKM"),
+                            rs.getString("tenChuongTrinh"), rs.getString("moTa"),
+                            rs.getString("loaiKhuyenMai"), rs.getBigDecimal("giaTriKM"),
+                            rs.getDate("ngayBatDau").toLocalDate(), rs.getDate("ngayKetThuc").toLocalDate(),
+                            rs.getString("trangThai")));
                 }
                 return danhSach;
             } finally {
@@ -64,7 +69,6 @@ public class ThanhToanDAO {
             try {
                 con.setAutoCommit(true);
             } catch (SQLException loiKetNoi) {
-                // Hóa đơn đã commit hoặc rollback. Đóng kết nối để lần sau dùng kết nối mới.
                 ConnectDB.getInstance().disconnect();
             }
         }
@@ -108,10 +112,10 @@ public class ThanhToanDAO {
             stmt.setObject(6, hd.getThoiGianThanhToan());
             stmt.setString(7, hd.getChuongTrinhKM() == null ? null : hd.getChuongTrinhKM().getMaKM());
             stmt.setString(8, hd.getKhachHang().getMaKhachHang());
-            stmt.setString(9, hd.tinhTienKhuyenMai(hd.tinhTongTienSP()).toPlainString());
-            stmt.setString(10, hd.tinhTongTienThanhToan().toPlainString());
+            stmt.setBigDecimal(9, hd.tinhTienKhuyenMai(hd.tinhTongTienSP()));
+            stmt.setBigDecimal(10, hd.tinhTongTienThanhToan());
             stmt.setString(11, hd.getNhanVien().getMaNhanVien());
-            stmt.setString(12, HOAT_DONG);
+            stmt.setNString(12, HOAT_DONG);
             if (stmt.executeUpdate() != 1) {
                 throw new IllegalArgumentException("Nhân viên đã ngừng hoạt động hoặc không còn tồn tại.");
             }
@@ -134,7 +138,7 @@ public class ThanhToanDAO {
                     int soLuong = dong.getSoLuong();
                     truTon.setInt(1, soLuong);
                     truTon.setString(2, maSP);
-                    truTon.setString(3, HOAT_DONG);
+                    truTon.setNString(3, HOAT_DONG);
                     truTon.setInt(4, soLuong);
                     if (truTon.executeUpdate() != 1) {
                         throw new IllegalArgumentException("Sản phẩm " + maSP + " thiếu tồn hoặc đã ngừng hoạt động.");
@@ -142,7 +146,7 @@ public class ThanhToanDAO {
                     themDong.setString(1, ma);
                     themDong.setString(2, maSP);
                     themDong.setInt(3, soLuong);
-                    themDong.setString(4, dong.getGiaBan().toPlainString());
+                    themDong.setBigDecimal(4, dong.getGiaBan());
                     themDong.executeUpdate();
                 }
             } finally {

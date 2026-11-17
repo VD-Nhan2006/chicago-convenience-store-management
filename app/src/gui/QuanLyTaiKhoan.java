@@ -19,7 +19,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -30,11 +29,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import dao.QuanLyNhanVienDAO;
+import dao.QuanLyTaiKhoanDAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
-import entity.VaiTro;
-import service.QuanLyNhanVienService;
-import service.QuanLyTaiKhoanService;
 import util.AESGCMUtil;
 
 public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelectionListener {
@@ -66,8 +64,8 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
     private JButton btnXoa;
     private JButton btnLamMoi;
 
-    private QuanLyTaiKhoanService taiKhoanService = new QuanLyTaiKhoanService();
-    private QuanLyNhanVienService nhanVienService = new QuanLyNhanVienService();
+    private QuanLyTaiKhoanDAO taiKhoanDAO = new QuanLyTaiKhoanDAO();
+    private QuanLyNhanVienDAO nhanVienDAO = new QuanLyNhanVienDAO();
 
     private ArrayList<TaiKhoan> dsTaiKhoan = new ArrayList<>();
     private ArrayList<NhanVien> dsNhanVien = new ArrayList<>();
@@ -268,7 +266,7 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
         lamMoiForm();
 
         // 1. Nạp danh sách tài khoản lên bảng
-        dsTaiKhoan = taiKhoanService.getAllTaiKhoan();
+        dsTaiKhoan = taiKhoanDAO.getAllTaiKhoan();
         if (dsTaiKhoan != null) {
             for (TaiKhoan tk : dsTaiKhoan) {
                 tableModel.addRow(new Object[] {
@@ -281,7 +279,7 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
         }
 
         // 2. Nạp TOÀN BỘ nhân viên vào combobox (kể cả người chưa có tài khoản)
-        dsNhanVien = nhanVienService.getAllNhanVien();
+        dsNhanVien = nhanVienDAO.getAllNhanVien();
         if (dsNhanVien != null) {
             for (NhanVien nv : dsNhanVien) {
                 cboMaNhanVien.addItem(nv.getMaNhanVien());
@@ -384,121 +382,6 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
                 chkHienMKHienTai.setSelected(false);
                 chkHienMKMoi.setSelected(false);
             }
-        }else if(nguon == btnThem) {
-        	themTaiKhoan();
-        }else if(nguon == btnDoiMatKhau) {
-        	doiMatKhau();
         }
     }
-
-	private void doiMatKhau() {
-		Object selectedNhanVien = cboMaNhanVien.getSelectedItem();
-		if (selectedNhanVien == null) {
-	        JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần đổi mật khẩu!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        cboMaNhanVien.requestFocus();
-	        return;
-	    }
-		String maNV = selectedNhanVien.toString();
-		boolean daCoTaiKhoan =  false;
-		for(TaiKhoan tk : dsTaiKhoan) {
-			if(maNV.equals(tk.getNhanVien().getMaNhanVien())) {
-				daCoTaiKhoan = true;
-				break;
-			}
-		}
-		
-		if(!daCoTaiKhoan) {
-			JOptionPane.showMessageDialog(this, "Nhân viên này chưa có tài khoản! Hãy dùng nút \"Thêm\".", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        return;
-		}
-		
-		String matKhauMoi = new String(txtMatKhauMoi.getPassword()).trim();
-		if(matKhauMoi.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        txtMatKhauMoi.requestFocus();
-	        return;
-		}
-		if(matKhauMoi.length()<6) {
-			JOptionPane.showMessageDialog(this, "Mật khẩu mới phải có độ dài tối thiểu 6 ký tự!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        txtMatKhauMoi.requestFocus();
-	        return;
-		}
-		String matKhauHienTai = new String(txtMatKhauHienTai.getPassword()).trim();
-		if(matKhauMoi.equals(matKhauHienTai)) {
-			JOptionPane.showMessageDialog(this, "Mật khẩu mới không được trùng với mật khẩu hiện tại!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        txtMatKhauMoi.requestFocus();
-	        return;
-		}
-		int xacNhan = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn đổi mật khẩu cho nhân viên " + maNV + " không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-		if(xacNhan != JOptionPane.YES_OPTION) {
-			return;
-		}
-		String matKhauMaHoa;
-		try {
-			matKhauMaHoa = AESGCMUtil.maHoaMatKhau(matKhauMoi);
-		}catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Lỗi mã hóa mật khẩu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-	        return;
-		}
-		
-		if(taiKhoanService.doiMatKhau(maNV, matKhauMaHoa)) {
-			JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-	        loadData();
-	        cboMaNhanVien.setSelectedItem(maNV);
-		}else {
-			JOptionPane.showMessageDialog(this, "Đổi mật khẩu thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private void themTaiKhoan() {
-		Object selectedNV = cboMaNhanVien.getSelectedItem();
-		if(selectedNV == null) {
-			JOptionPane.showMessageDialog(this, "Vui lòng chọn mã nhân viên cần cấp tài khoản!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-			cboMaNhanVien.requestFocus();
-			return;
-		}
-		String maNV = selectedNV.toString();
-		
-		for(TaiKhoan tk : dsTaiKhoan) {
-			if(maNV.equals(tk.getNhanVien().getMaNhanVien())) {
-				JOptionPane.showMessageDialog(this, "Nhân viên này đã có tài khoản rồi! Hãy dùng nút Đổi mật khẩu.", "Thông báo", JOptionPane.WARNING_MESSAGE);
-				txtMatKhauMoi.requestFocus();
-				return;
-			}
-		}
-		String matKhauMoi = new String(txtMatKhauMoi.getPassword()).trim();
-		if(matKhauMoi.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        txtMatKhauMoi.requestFocus();
-	        return;
-		}
-		if(matKhauMoi.length()<6) {
-			JOptionPane.showMessageDialog(this, "Mật khẩu phải có độ dài tối thiểu 6 ký tự!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-	        txtMatKhauMoi.requestFocus();
-	        return;
-		}
-		
-		String matKhauDaMaHoa;
-		try {
-			matKhauDaMaHoa = AESGCMUtil.maHoaMatKhau(matKhauMoi);
-		}catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Lỗi mã hóa mật khẩu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-	        return;
-		}
-		
-		NhanVien nv =new NhanVien(maNV);
-		VaiTro vaiTroMacDinh = VaiTro.THU_NGAN;
-		String trangThaiMacDinh = "Đang hoạt động";
-		TaiKhoan tkMoi = new TaiKhoan(nv, matKhauDaMaHoa, vaiTroMacDinh, trangThaiMacDinh);
-		
-		if(taiKhoanService.themTaiKhoan(tkMoi)) {
-			JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-	        loadData();
-	        cboMaNhanVien.setSelectedItem(maNV);
-		}else {
-			JOptionPane.showMessageDialog(this, "Thêm tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-		}
-		
-		
-	}
 }

@@ -31,7 +31,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
 
 import dao.BanHangDAO;
@@ -56,7 +55,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private final BanHangService service;
     private JTextField txtKhachHang;
     private JList<String> lstGoiYKhachHang;
-    private final DefaultListModel<String> modelGoiYKhachHang = new DefaultListModel<String>();
     private JPopupMenu popGoiYKhachHang;
     private ArrayList<KhachHang> goiYKhachHang = new ArrayList<KhachHang>();
     private String tuKhoaKhachHang = "";
@@ -71,12 +69,10 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     private JTextField txtTongTienHang;
     private JTable tblDongHang;
     private DefaultTableModel model;
-    private boolean dangCapNhatBang;
     private JButton btnChon;
     private JButton btnThemDong;
     private JButton btnSua;
     private JButton btnXoa;
-    private JButton btnLamMoi;
     private JComboBox<String> cboKhuyenMai;
     private JComboBox<String> cboPhuongThuc;
     private JTextField txtTienGiam;
@@ -143,7 +139,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         pnlTenKhachHang.add(lblTenKhachHang, BorderLayout.CENTER);
         pnlKhachHang.add(pnlTenKhachHang);
         pnlNhap.add(pnlKhachHang);
-        lstGoiYKhachHang = new JList<String>(modelGoiYKhachHang);
+        lstGoiYKhachHang = new JList<String>();
         popGoiYKhachHang = taoPopupGoiY(lstGoiYKhachHang);
 
         pnlNhap.add(Box.createVerticalStrut(12));
@@ -249,18 +245,15 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         scrDongHang.setBorder(BorderFactory.createLineBorder(MAU_XANH));
         pnlDongHang.add(scrDongHang, BorderLayout.CENTER);
 
-        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 3, 8, 0));
+        JPanel pnlSuaDong = new JPanel(new GridLayout(1, 2, 8, 0));
         btnXoa = new JButton("Xóa dòng");
         dinhDangNut(btnXoa, MAU_DO, false);
         btnSua = new JButton("Sửa số lượng");
         dinhDangNut(btnSua, MAU_XANH, false);
-        btnLamMoi = new JButton("Làm mới");
-        dinhDangNut(btnLamMoi, MAU_XANH, false);
         btnXoa.setEnabled(false);
         btnSua.setEnabled(false);
         pnlSuaDong.add(btnXoa);
         pnlSuaDong.add(btnSua);
-        pnlSuaDong.add(btnLamMoi);
         pnlDongHang.add(pnlSuaDong, BorderLayout.SOUTH);
 
         JPanel pnlThanhToan = new JPanel(new BorderLayout());
@@ -365,7 +358,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         btnThemDong.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
-        btnLamMoi.addActionListener(this);
         cboKhuyenMai.addActionListener(this);
         cboPhuongThuc.addActionListener(this);
         txtTienKhachDua.addActionListener(this);
@@ -438,9 +430,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
                 service.xoaDong(tblDongHang.getSelectedRow());
                 capNhatBang();
                 xoaNhapSanPham();
-            } else if (nguon == btnLamMoi) {
-                service.xoaHoaDonDangLap();
-                datLaiManHinh();
             } else if (nguon == cboKhuyenMai) {
                 int viTri = cboKhuyenMai.getSelectedIndex() - 1;
                 service.chonKhuyenMai(viTri < 0 ? null : danhSachKhuyenMai.get(viTri));
@@ -523,7 +512,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             KhachHang kh = goiYKhachHang.get(i);
             nhan[i] = kh.getMaKhachHang() + " - " + kh.getHo() + " " + kh.getTen() + " - " + kh.getSoDienThoai();
         }
-        napGoiYKhachHang(nhan);
+        napGoiY(txtKhachHang, lstGoiYKhachHang, popGoiYKhachHang, nhan);
     }
 
     private void timSanPham(boolean xacNhan) throws SQLException {
@@ -554,17 +543,12 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         }
     }
 
-    private void napGoiYKhachHang(String[] nhan) {
-        popGoiYKhachHang.setVisible(false);
-        while (modelGoiYKhachHang.getSize() > 0) {
-            modelGoiYKhachHang.removeElement(modelGoiYKhachHang.getElementAt(0));
-        }
-        for (String dong : nhan) {
-            modelGoiYKhachHang.addElement(dong);
-        }
-        lstGoiYKhachHang.setVisibleRowCount(nhan.length < 3 ? nhan.length : 3);
-        if (txtKhachHang.isShowing()) {
-            popGoiYKhachHang.show(txtKhachHang, 0, txtKhachHang.getHeight());
+    private void napGoiY(JTextField oNhap, JList<String> danhSach, JPopupMenu popup, String[] nhan) {
+        danhSach.clearSelection();
+        danhSach.setListData(nhan);
+        popup.setPopupSize(460, 23 * Math.min(nhan.length, 3) + 2);
+        if (oNhap.isShowing() && !popup.isVisible()) {
+            popup.show(oNhap, 0, oNhap.getHeight());
         }
     }
 
@@ -581,7 +565,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         txtMaSanPham.setText(tuKhoaSanPham);
         hienThiSanPham(sanPham);
         if (chuyenO) {
-            txtSoLuong.requestFocus();
+            txtSoLuong.requestFocusInWindow();
         }
     }
 
@@ -594,11 +578,8 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             int viTri = lstGoiYKhachHang.getSelectedIndex();
             if (popGoiYKhachHang.isVisible() && viTri >= 0) {
                 chonKhachHang(goiYKhachHang.get(viTri));
-                txtMaSanPham.requestFocus();
+                txtMaSanPham.requestFocusInWindow();
             }
-            return;
-        }
-        if (dangCapNhatBang) {
             return;
         }
         int viTri = tblDongHang.getSelectedRow();
@@ -621,21 +602,13 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void capNhatBang() {
-        dangCapNhatBang = true;
-        try {
-            while (model.getRowCount() > 0) {
-                model.removeRow(model.getRowCount() - 1);
-            }
-            for (ChiTietHoaDon dong : service.layDongHang()) {
-                SanPham sp = dong.getSanPham();
-                model.addRow(new Object[]{sp.getMaSanPham(), sp.getTenSanPham(), sp.getDonViTinh(),
-                        dong.getSoLuong(), dong.getGiaBan(), dong.tinhThanhTien()});
-            }
-        } finally {
-            dangCapNhatBang = false;
+        tblDongHang.clearSelection();
+        model.setRowCount(0);
+        for (ChiTietHoaDon dong : service.layDongHang()) {
+            SanPham sp = dong.getSanPham();
+            model.addRow(new Object[]{sp.getMaSanPham(), sp.getTenSanPham(), sp.getDonViTinh(),
+                    dong.getSoLuong(), dong.getGiaBan(), dong.tinhThanhTien()});
         }
-        btnXoa.setEnabled(false);
-        btnSua.setEnabled(false);
         txtTongTienHang.setText(service.tinhTongTienHang().toPlainString());
         btnThanhToan.setEnabled(service.coDongHang());
         capNhatTienThanhToan();
@@ -660,7 +633,7 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             txtTienKhachDua.setText(tong.toPlainString());
         }
         String tienNhap = txtTienKhachDua.getText().trim();
-        BigDecimal tienThoi = tienMat && tienNhap.matches("[0-9]{1,18}")
+        BigDecimal tienThoi = tienNhap.matches("[0-9]{1,18}")
                 ? service.tinhTienThoi(new BigDecimal(tienNhap)) : BigDecimal.ZERO;
         txtTienThoi.setText(tienThoi.toPlainString());
     }
@@ -694,21 +667,16 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
             return;
         }
         String ma = service.thanhToan(phuongThuc, tienKhachDua, new NhanVien(maNhanVien));
-        datLaiManHinh();
-        sauThanhToan(ma);
-    }
-
-    private void datLaiManHinh() {
         txtKhachHang.setText("");
         tuKhoaKhachHang = "";
         popGoiYKhachHang.setVisible(false);
         lblTenKhachHang.setText("Chưa chọn khách hàng");
         txtTienKhachDua.setText("");
-        cboKhuyenMai.removeAllItems();
-        cboKhuyenMai.addItem("Không áp dụng");
+        cboKhuyenMai.setSelectedIndex(0);
         cboPhuongThuc.setSelectedIndex(0);
         capNhatBang();
         xoaNhapSanPham();
+        sauThanhToan(ma);
     }
 
     private void sauThanhToan(String ma) {
@@ -746,6 +714,6 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
         tuKhoaSanPham = "";
         txtSoLuong.setText("1");
         hienThiSanPham(null);
-        txtMaSanPham.requestFocus();
+        txtMaSanPham.requestFocusInWindow();
     }
 }

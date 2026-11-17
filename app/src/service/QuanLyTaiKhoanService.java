@@ -11,19 +11,4 @@ public class QuanLyTaiKhoanService {
 	public ArrayList<TaiKhoan> getAllTaiKhoan(){
 		return taiKhoanDAO.getAllTaiKhoan();
 	}
-	
-	public boolean themTaiKhoan(TaiKhoan tk) {
-		if(tk == null || tk.getNhanVien() == null) {
-			return false;
-		}
-		return taiKhoanDAO.themTaiKhoan(tk);
-	}
-	
-	public boolean doiMatKhau(String maNV, String matKhauMoi) {
-	    if (maNV == null || maNV.trim().isEmpty() || matKhauMoi == null || matKhauMoi.trim().isEmpty()) {
-	        return false;
-	    }
-	    return taiKhoanDAO.doiMatKhau(maNV, matKhauMoi);
-	}
 }
-

@@ -2,7 +2,7 @@ package entity;
 
 public enum VaiTro {
 	QUAN_LY("Quản lý"),
-	THU_NGAN("Nhân viên thu ngân");
+	THU_NGAN("Thu ngân");
 
 	private final String tenHienThi;
 

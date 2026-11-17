@@ -2,9 +2,11 @@ package service;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 
 import dao.HoaDonDAO;
 import entity.ChiTietHoaDon;
@@ -34,20 +36,20 @@ public class HoaDonService {
     }
 
     public static void xuatHoaDonTxt(HoaDon hd, File tep) throws IOException {
-        BufferedWriter out = new BufferedWriter(new FileWriter(tep));
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tep), "UTF-8"));
         try {
             ghiDong(out, "CỬA HÀNG TIỆN LỢI CHICAGO");
             ghiDong(out, "HÓA ĐƠN BÁN HÀNG");
-            out.write("\r\n");
+            out.newLine();
             ghiDong(out, "Mã hóa đơn: " + hd.getMaHoaDon());
-            ghiDong(out, "Ngày lập: " + hd.dinhDangNgayLap());
+            ghiDong(out, "Ngày lập: " + hd.getNgayGioLap().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
             ghiDong(out, "Nhân viên: " + hd.getNhanVien().getHo() + " " + hd.getNhanVien().getTen()
                     + " (" + hd.getNhanVien().getMaNhanVien() + ")");
             ghiDong(out, "Khách hàng: " + hd.getKhachHang().getHo() + " " + hd.getKhachHang().getTen());
             ghiDong(out, "SĐT khách hàng: " + hd.getKhachHang().getSoDienThoai());
             ghiDong(out, "Phương thức: " + hd.getPhuongThucThanhToan());
             ghiDong(out, "Trạng thái: " + hd.getTrangThaiThanhToan());
-            out.write("\r\n");
+            out.newLine();
             ghiDong(out, "STT | Mã SP | Tên sản phẩm | ĐVT | SL | Đơn giá (đ) | Thành tiền (đ)");
             int stt = 1;
             long tongSoLuong = 0;
@@ -59,7 +61,7 @@ public class HoaDonService {
                 stt++;
                 tongSoLuong += dong.getSoLuong();
             }
-            out.write("\r\n");
+            out.newLine();
             ghiDong(out, "Tổng số lượng: " + tongSoLuong);
             ghiDong(out, "Tổng tiền hàng: " + hd.tinhTongTienSP().toPlainString() + " đ");
             ghiDong(out, "Tiền được giảm: " + hd.tinhTienKhuyenMai(hd.tinhTongTienSP()).toPlainString() + " đ");
@@ -73,6 +75,6 @@ public class HoaDonService {
 
     private static void ghiDong(BufferedWriter out, String noiDung) throws IOException {
         out.write(noiDung);
-        out.write("\r\n");
+        out.newLine();
     }
 }
