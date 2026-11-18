@@ -25,5 +25,12 @@ public class QuanLyTaiKhoanService {
 	    }
 	    return taiKhoanDAO.doiMatKhau(maNV, matKhauMoi);
 	}
+
+	public boolean xoaTaiKhoan(String maNV) {
+		if (maNV == null || maNV.trim().isEmpty()) {
+			return false;
+		}
+		return taiKhoanDAO.xoaTaiKhoan(maNV);
+	}
 }
 

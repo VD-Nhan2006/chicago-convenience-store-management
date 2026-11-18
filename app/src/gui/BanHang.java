@@ -712,13 +712,14 @@ public class BanHang extends JPanel implements ActionListener, ListSelectionList
     }
 
     private void sauThanhToan(String ma) {
-        Object[] tuyChon = {"Đóng", "Xem hóa đơn"};
-        int luaChon = JOptionPane.showOptionDialog(this, "Đã lưu hóa đơn " + ma + ".",
-                "Thanh toán thành công", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
-                null, tuyChon, tuyChon[0]);
-        if (luaChon == 1) {
-            xemHoaDon(ma);
-        }
+//        Object[] tuyChon = {"Đóng", "Xem hóa đơn"};
+//        int luaChon = JOptionPane.showOptionDialog(this, "Đã lưu hóa đơn " + ma + ".",
+//                "Thanh toán thành công", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+//                null, tuyChon, tuyChon[0]);
+//        if (luaChon == 1) {
+//            xemHoaDon(ma);
+//        }
+    	xemHoaDon(ma);
     }
 
     private void xemHoaDon(String ma) {

@@ -93,9 +93,9 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         JPanel cuaHang = new JPanel(new GridLayout(4, 1, 0, 3));
         cuaHang.setOpaque(false);
         cuaHang.add(nhan("CỬA HÀNG TIỆN LỢI CHICAGO", 23, Font.BOLD));
-        cuaHang.add(nhan("Địa chỉ          —", 13, Font.PLAIN));
-        cuaHang.add(nhan("Điện thoại     —", 13, Font.PLAIN));
-        cuaHang.add(nhan("Mã số thuế   —", 13, Font.PLAIN));
+        cuaHang.add(nhan("Địa chỉ: Số 10 Nguyễn Thái Sơn, phường Hạnh Thông, TP. Hồ Chí Minh", 13, Font.PLAIN));
+        cuaHang.add(nhan("Điện thoại: 0869999999", 13, Font.PLAIN));
+        cuaHang.add(nhan("Mã số thuế 99999999", 13, Font.PLAIN));
         dauTrang.add(cuaHang, BorderLayout.CENTER);
         return dauTrang;
     }
@@ -241,6 +241,7 @@ public class HoaDonDialog extends JDialog implements ActionListener {
         try {
             File tep = HoaDonService.xuatHoaDonVaoDuAn(hoaDon);
             JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn: " + tep.getAbsolutePath());
+            dispose();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Không lưu được hóa đơn trong thư mục HoaDon của dự án.",
                     "Lỗi xuất hóa đơn", JOptionPane.ERROR_MESSAGE);

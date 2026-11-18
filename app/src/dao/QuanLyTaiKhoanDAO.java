@@ -84,4 +84,23 @@ public class QuanLyTaiKhoanDAO {
 			return false;
 		}
 	}
+
+	public boolean xoaTaiKhoan(String maNV) {
+		String sql = "UPDATE dbo.TaiKhoan SET trangThai = ? WHERE maNhanVien = ?";
+		try {
+			ConnectDB.getInstance();
+			Connection con = ConnectDB.getConnection();
+			PreparedStatement prestm = con.prepareStatement(sql);
+			try {
+				prestm.setString(1, "Ngừng hoạt động");
+				prestm.setString(2, maNV);
+				return prestm.executeUpdate() > 0;
+			} finally {
+				prestm.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

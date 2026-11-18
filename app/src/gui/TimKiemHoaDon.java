@@ -76,7 +76,7 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener, Acti
         add(taoTieuDeVaTim(), BorderLayout.NORTH);
         add(taoNoiDung(),     BorderLayout.CENTER);
 
-        taiLai();
+    //    taiLai();
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -307,20 +307,20 @@ public class TimKiemHoaDon extends JPanel implements ListSelectionListener, Acti
         return btn;
     }
 
-    private void taiLai() {
-        try {
-            hienThi(hoaDonService.timKiem("", null, null, ""));
-        } catch (SQLException e) {
-            baoLoiCsdl(e);
-        }
-    }
+//    private void taiLai() {
+//        try {
+//            hienThi(hoaDonService.timKiem("", null, null, ""));
+//        } catch (SQLException e) {
+//            baoLoiCsdl(e);
+//        }
+//    }
 
     private void lamMoi() {
         txtMaHD.setText("");
         txtTuNgay.setText("");
         txtDenNgay.setText("");
         txtKhachHang.setText("");
-        taiLai();
+//        taiLai();
         xoaChiTiet();
         tblHoaDon.clearSelection();
     }

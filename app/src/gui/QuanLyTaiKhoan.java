@@ -35,6 +35,7 @@ import entity.TaiKhoan;
 import entity.VaiTro;
 import service.QuanLyNhanVienService;
 import service.QuanLyTaiKhoanService;
+import session.UserSession;
 import util.AESGCMUtil;
 
 public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelectionListener {
@@ -79,6 +80,8 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
 
         taoNoiDung();
         loadData();
+
+
     }
 
     // Tạo vùng nội dung: Bảng ở giữa, Form bên phải
@@ -346,8 +349,7 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
 
         if (nguon == btnLamMoi) {
             tblTaiKhoan.clearSelection();
-            cboMaNhanVien.setSelectedIndex(-1);
-            lamMoiForm();
+            loadData();
         } else if (nguon == cboMaNhanVien) {
             Object selected = cboMaNhanVien.getSelectedItem();
             if (selected == null) {
@@ -388,6 +390,8 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
         	themTaiKhoan();
         }else if(nguon == btnDoiMatKhau) {
         	doiMatKhau();
+        }else if(nguon == btnXoa) {
+        	xoaTaiKhoan();
         }
     }
 
@@ -498,7 +502,56 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, ListSelect
 		}else {
 			JOptionPane.showMessageDialog(this, "Thêm tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 		}
-		
-		
+	}
+
+	private void xoaTaiKhoan() {
+		Object selectedNV = cboMaNhanVien.getSelectedItem();
+		if (selectedNV == null) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản cần xóa!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+			cboMaNhanVien.requestFocus();
+			return;
+		}
+		String maNV = selectedNV.toString();
+
+		// Kiểm tra xem nhân viên đã có tài khoản trong hệ thống chưa
+		TaiKhoan taiKhoanChon = null;
+		for (TaiKhoan tk : dsTaiKhoan) {
+			if (maNV.equals(tk.getNhanVien().getMaNhanVien())) {
+				taiKhoanChon = tk;
+				break;
+			}
+		}
+
+		if (taiKhoanChon == null) {
+			JOptionPane.showMessageDialog(this, "Nhân viên này chưa có tài khoản trong hệ thống!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		// Không cho phép xóa (ngừng hoạt động) tài khoản đang đăng nhập hiện tại
+		if (maNV.equals(UserSession.getMaNhanVien())) {
+			JOptionPane.showMessageDialog(this, "Không thể ngừng hoạt động tài khoản đang đăng nhập!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		// Kiểm tra nếu tài khoản đã ngừng hoạt động rồi
+		if ("Ngừng hoạt động".equals(taiKhoanChon.getTrangThai())) {
+			JOptionPane.showMessageDialog(this, "Tài khoản này đã ở trạng thái 'Ngừng hoạt động'!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		int xacNhan = JOptionPane.showConfirmDialog(this,
+				"Bạn có chắc chắn muốn chuyển tài khoản " + maNV + " sang trạng thái 'Ngừng hoạt động'?",
+				"Xác nhận xóa tài khoản", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (xacNhan != JOptionPane.YES_OPTION) {
+			return;
+		}
+
+		if (taiKhoanService.xoaTaiKhoan(maNV)) {
+			JOptionPane.showMessageDialog(this, "Đã chuyển tài khoản " + maNV + " sang trạng thái 'Ngừng hoạt động' thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			loadData();
+			cboMaNhanVien.setSelectedItem(maNV);
+		} else {
+			JOptionPane.showMessageDialog(this, "Chuyển trạng thái tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
